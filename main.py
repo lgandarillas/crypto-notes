@@ -12,15 +12,14 @@ def main():
     printer = PrintManager()
     printer.print_welcome_msg()
 
-    # Optional: Add some basic commands to the history initially
-    readline.add_history("register")
-    readline.add_history("login")
-    readline.add_history("exit")
+    # Inicializar comandos básicos en el historial
+    for cmd in ["register", "login", "exit"]:
+        readline.add_history(cmd)
 
     while True:
         try:
             # Get the user's input
-            option = input("Select an option (register, login, exit): ").strip().lower()
+            option = input(f"Select an option ({printer.COLOR_BLUE}register{printer.COLOR_RESET}, {printer.COLOR_BLUE}login{printer.COLOR_RESET}, {printer.COLOR_BLUE}exit{printer.COLOR_RESET}): ").strip().lower()
             if option == "register":
                 print(f"You selected {printer.COLOR_BLUE}register{printer.COLOR_RESET}\n")
             elif option == "login":
@@ -29,7 +28,7 @@ def main():
                 printer.print_exit_msg()
                 break
             else:
-                print(f"Invalid option: {printer.COLOR_RED}{option}{printer.COLOR_RESET}. Please try again.\n")
+                print(f"Invalid option: {printer.COLOR_RED}{option}{printer.COLOR_RESET}.")
         except KeyboardInterrupt:
             # Handle Ctrl+C by showing the exit message
             printer.print_exit_msg()
