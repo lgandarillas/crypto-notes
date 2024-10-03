@@ -6,7 +6,9 @@
 	git clone git@github.com:lgandarillas/p1_cripto.git
 	```
 2.	Open a terminal or command prompt, navigate to the folder where the script is located.
-
+	```bash
+	cd p1_cripto
+	```
 3.	Setup the virtual environment and install dependencies:
     ```bash
     python3 -m venv venv
