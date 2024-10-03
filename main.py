@@ -8,29 +8,39 @@ By: Luis Gandarillas && Carlos Bravo
 import readline
 from prints import PrintManager
 
+def setup_readline_history():
+    """Add basic commands to the readline history."""
+    for cmd in ["register", "login", "exit"]:
+        readline.add_history(cmd)
+
+def handle_mode(mode: str, printer: PrintManager) -> None:
+    """Handle the user's selected mode."""
+    if mode == "register":
+        print(f"You selected {printer.COLOR_BLUE}register{printer.COLOR_RESET}\n")
+    elif mode == "login":
+        print(f"You selected {printer.COLOR_BLUE}login{printer.COLOR_RESET}\n")
+    elif mode == "exit":
+        printer.print_exit_msg()
+        return False
+    else:
+        print(f"Invalid mode: {printer.COLOR_RED}{mode}{printer.COLOR_RESET}\n")
+    return True
+
 def main():
     printer = PrintManager()
     printer.print_welcome_msg()
 
-    # Inicializar comandos básicos en el historial
-    for cmd in ["register", "login", "exit"]:
-        readline.add_history(cmd)
+    setup_readline_history()
 
     while True:
         try:
-            # Get the user's input
-            option = input(f"Select an option ({printer.COLOR_BLUE}register{printer.COLOR_RESET}, {printer.COLOR_BLUE}login{printer.COLOR_RESET}, {printer.COLOR_BLUE}exit{printer.COLOR_RESET}): ").strip().lower()
-            if option == "register":
-                print(f"You selected {printer.COLOR_BLUE}register{printer.COLOR_RESET}\n")
-            elif option == "login":
-                print(f"You selected {printer.COLOR_BLUE}login{printer.COLOR_RESET}\n")
-            elif option == "exit":
-                printer.print_exit_msg()
+            # Get the users mode
+            mode = input(f"Select a mode ({printer.COLOR_BLUE}register{printer.COLOR_RESET}, {printer.COLOR_BLUE}login{printer.COLOR_RESET}, {printer.COLOR_BLUE}exit{printer.COLOR_RESET}): ").strip().lower()
+            if not handle_mode(mode, printer):
                 break
-            else:
-                print(f"Invalid option: {printer.COLOR_RED}{option}{printer.COLOR_RESET}.")
         except KeyboardInterrupt:
             # Handle Ctrl+C by showing the exit message
+            print("^C")
             printer.print_exit_msg()
             break
 
