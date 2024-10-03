@@ -10,7 +10,9 @@ git clone git@github.com:lgandarillas/p1_cripto.git
 3. Setup the virtual environment and install dependencies:
 ```bash
 python3 -m venv venv
+```bash
 source venv/bin/activate
+```bash
 pip install -r requirements.txt
 ```
 3. Run the Python script using the following command:
