@@ -6,7 +6,7 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import readline
-from prints import print_welcome_msg, print_exit_msg
+from prints import print_welcome_msg, print_exit_msg, COLOR_BLUE, COLOR_RED, COLOR_RESET
 
 def main():
     print_welcome_msg()
@@ -20,14 +20,14 @@ def main():
         try:
             option = input("Select an option (register, login, exit): ").strip().lower()
             if option == "register":
-                print("You selected register\n")
+                print(f"You selected {COLOR_BLUE}register{COLOR_RESET}\n")
             elif option == "login":
-                print("You selected login\n")
+                print(f"You selected {COLOR_BLUE}login{COLOR_RESET}\n")
             elif option == "exit":
                 print_exit_msg()
                 break
             else:
-                print("Invalid option. Please try again.\n")
+                print(f"Invalid option: {COLOR_RED}{option}{COLOR_RESET}. Please try again.\n")
         except KeyboardInterrupt:
             # Handle Ctrl+C by showing the exit message
             print_exit_msg()
