@@ -2,24 +2,25 @@
 This file contains the print functions for the program.
 """
 
-COLOR_RED = "\033[91m"
-COLOR_BLUE = "\033[94m"
-COLOR_RESET = "\033[0m"
+class PrintManager:
+    COLOR_RED = "\033[91m"
+    COLOR_BLUE = "\033[94m"
+    COLOR_RESET = "\033[0m"
 
-def print_welcome_msg():
-    print(COLOR_BLUE)
-    print(r""",--.   ,--.,------.,--.    ,-----. ,-----. ,--.   ,--.,------.
+    def print_welcome_msg(self):
+        print(self.COLOR_BLUE)
+        print(r""",--.   ,--.,------.,--.    ,-----. ,-----. ,--.   ,--.,------.
 |  |   |  ||  .---'|  |   '  .--./'  .-.  '|   `.'   ||  .---'
 |  |.'.|  ||  `--, |  |   |  |    |  | |  ||  |'.'|  ||  `--,
 |   ,'.   ||  `---.|  '--.'  '--'\'  '-'  '|  |   |  ||  `---.
 '--'   '--'`------'`-----' `-----' `-----' `--'   `--'`------'""")
-    print(COLOR_RESET)
+        print(self.COLOR_RESET)
 
-def print_exit_msg():
-    print(COLOR_RED)
-    print(r""",------.,--.   ,--.,--.,--------.
+    def print_exit_msg(self):
+        print(self.COLOR_RED)
+        print(r""",------.,--.   ,--.,--.,--------.
 |  .---' \  `.'  / |  |'--.  .--'
 |  `--,   .'    \  |  |   |  |
 |  `---. /  .'.  \ |  |   |  |
 `------''--'   '--'`--'   `--'""")
-    print(COLOR_RESET)
+        print(self.COLOR_RESET)
