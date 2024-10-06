@@ -8,6 +8,7 @@ import base64
 import pyotp
 from authenticator import Authenticator
 from cryptography.fernet import Fernet
+from utils import derive_key
 
 class ModeHandler:
 	MODES = {
@@ -61,7 +62,7 @@ class ModeHandler:
 
 		password = input("    Enter your password: ").strip()
 		salt = base64.urlsafe_b64decode(user['salt'])
-		key = self.authenticator.derive_key(password, salt)
+		key = derive_key(password, salt)
 		f = Fernet(key)
 		try:
 			f.decrypt(user['token'].encode())
