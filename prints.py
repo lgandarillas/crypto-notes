@@ -9,9 +9,11 @@ class PrintManager:
     COLOR_RESET = "\033[0m"
 
     def apply_color(self, text: str, color: str) -> str:
+        """Apply color formatting to the given text."""
         return f"{color}{text}{self.COLOR_RESET}"
 
     def print_welcome_msg(self):
+        """Print the welcome message with blue color."""
         msg = r""",--.   ,--.,------.,--.    ,-----. ,-----. ,--.   ,--.,------.
 |  |   |  ||  .---'|  |   '  .--./'  .-.  '|   `.'   ||  .---'
 |  |.'.|  ||  `--, |  |   |  |    |  | |  ||  |'.'|  ||  `--,
@@ -20,6 +22,7 @@ class PrintManager:
         print(self.apply_color(msg, self.COLOR_BLUE))
 
     def print_exit_msg(self):
+        """Print the exit message with red color."""
         msg = r""",------.,--.   ,--.,--.,--------.
 |  .---' \  `.'  / |  |'--.  .--'
 |  `--,   .'    \  |  |   |  |
