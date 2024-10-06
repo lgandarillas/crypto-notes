@@ -93,7 +93,7 @@ class Authenticator:
 		self.printer.apply_color(f"Registration successful for user: {username}", self.printer.COLOR_GREEN)
 		return True
 
-	def login(self, username, password):
+	def login(self, username, password, otp_input):
 		"""Authenticate a user by checking the password. Decrypt the token and compare it with the stored one."""
 		user = self.users.get(username)
 		if not user:

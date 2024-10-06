@@ -51,7 +51,7 @@ class ModeHandler:
 		username = input("    Enter your username: ").strip()
 		password = input("    Enter your password: ").strip()
 		otp_input = input("    Ener your 2FA code from Google Authenticator: ").strip()
-		if self.authenticator.login(username, password):
+		if self.authenticator.login(username, password, otp_input):
 			print(self.printer.apply_color(f"User {username} logged in successfully", self.printer.COLOR_GREEN))
 		else:
 			print(self.printer.apply_color(f"Failed to login user: {username}", self.printer.COLOR_RED))
