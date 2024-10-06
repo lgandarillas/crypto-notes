@@ -1,1 +1,3 @@
 cryptography
+pyotp
+qrcode\[pil\]
