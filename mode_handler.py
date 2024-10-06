@@ -34,14 +34,18 @@ class ModeHandler:
 		username = input("Enter your username: ").strip()
 		password = input("Enter your password: ").strip()
 		if self.authenticator.register(username, password):
-			print(f"You selected {self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}\n")
+			print(f"You succesfully registered user: {username}")
+		else:
+			print(f"Registration failed for user: {username}")
 		return True
 
 	def handle_login(self):
 		username = input("Enter your username: ").strip()
 		password = input("Enter your password: ").strip()
 		if self.authenticator.login(username, password):
-			print(f"You selected {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}\n")
+			print(f"User {username} logged in successfully")
+		else:
+			print(f"Failed to login user: {username}.\n")
 		return True
 
 	def handle_exit(self):

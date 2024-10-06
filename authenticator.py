@@ -42,23 +42,27 @@ class Authenticator:
 		if username in self.users:
 			self.printer.apply_color("Username already exists!", self.printer.COLOR_RED)
 			return False
+
 		salt = self.generate_salt()
 		key = self.derive_key(password, salt)
 		f = Fernet(key)
 		token = f.encrypt(password.encode())
+
 		self.users[username] = {
 			'salt': base64.urlsafe_b64encode(salt).decode(),
 			'token': token.decode()
 		}
+
 		self.save_users()
-		self.printer.apply_color("Registration successful!", self.printer.COLOR_GREEN)
+		self.printer.apply_color(f"Registration successful for user: {username}", self.printer.COLOR_GREEN)
 		return True
 
 	def login(self, username, password):
 		user = self.users.get(username)
 		if not user:
-			self.printer.apply_color("Invalid username!", self.printer.COLOR_RED)
+			self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED)
 			return False
+
 		salt = base64.urlsafe_b64decode(user['salt'])
 		stored_token = user['token']
 
@@ -66,8 +70,8 @@ class Authenticator:
 		f = Fernet(key)
 		try:
 			f.decrypt(stored_token.encode())
-			self.printer.apply_color("Login successful!", self.printer.COLOR_GREEN)
+			self.printer.apply_color(f"Login successful for user: {username}!", self.printer.COLOR_GREEN)
 			return True
 		except Exception:
-			self.printer.apply_color("Invalid password!", self.printer.COLOR_RED)
+			self.printer.apply_color(f"Login failed: Invalid password for user '{username}'.", self.printer.COLOR_RED)
 			return False

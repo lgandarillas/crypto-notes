@@ -4,6 +4,7 @@ This file contains the print functions for the program.
 
 class PrintManager:
     COLOR_RED = "\033[91m"
+    COLOR_GREEN = "\033[92m"
     COLOR_BLUE = "\033[94m"
     COLOR_RESET = "\033[0m"
 
