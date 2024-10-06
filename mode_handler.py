@@ -3,6 +3,7 @@ This file contains the mode handler for the program.
 """
 
 import readline
+import os
 from authenticator import Authenticator
 
 class ModeHandler:
@@ -35,8 +36,9 @@ class ModeHandler:
 	def handle_register(self):
 		"""Handle the registration process for a new user."""
 		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
-		username = input("Enter your username: ").strip()
-		password = input("Enter your password: ").strip()
+		username = input("    Enter your username: ").strip()
+		password = input("    Enter your password: ").strip()
+		email = input("    Enter your email: ").strip()
 		if self.authenticator.register(username, password):
 			print(self.printer.apply_color(f"You successfully registered user: {username}", self.printer.COLOR_GREEN))
 		else:
@@ -46,8 +48,9 @@ class ModeHandler:
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
 		print(self.printer.apply_color("You selected login mode", self.printer.COLOR_BLUE))
-		username = input("Enter your username: ").strip()
-		password = input("Enter your password: ").strip()
+		username = input("    Enter your username: ").strip()
+		password = input("    Enter your password: ").strip()
+		otp_input = input("    Ener your 2FA code from Google Authenticator: ").strip()
 		if self.authenticator.login(username, password):
 			print(self.printer.apply_color(f"User {username} logged in successfully", self.printer.COLOR_GREEN))
 		else:
@@ -56,6 +59,11 @@ class ModeHandler:
 
 	def handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
+		for user in self.authenticator.users:
+			qr_image_file = f"{user}_qrcode.png"
+			if os.path.exists(qr_image_file):
+				os.remove(qr_image_file)
+
 		self.printer.print_exit_msg()
 		return False
 
