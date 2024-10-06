@@ -4,7 +4,10 @@ This file contains the mode handler for the program.
 
 import readline
 import os
+import base64
+import pyotp
 from authenticator import Authenticator
+from cryptography.fernet import Fernet
 
 class ModeHandler:
 	MODES = {
@@ -47,14 +50,32 @@ class ModeHandler:
 
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
+
 		print(self.printer.apply_color("You selected login mode", self.printer.COLOR_BLUE))
+
 		username = input("    Enter your username: ").strip()
+		user = self.authenticator.users.get(username)
+		if not user:
+			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED))
+			return True
+
 		password = input("    Enter your password: ").strip()
+		salt = base64.urlsafe_b64decode(user['salt'])
+		key = self.authenticator.derive_key(password, salt)
+		f = Fernet(key)
+		try:
+			f.decrypt(user['token'].encode())
+		except Exception:
+			print(self.printer.apply_color("Login failed: Incorrect password.", self.printer.COLOR_RED))
+			return True
+
 		otp_input = input("    Ener your 2FA code from Google Authenticator: ").strip()
-		if self.authenticator.login(username, password, otp_input):
-			print(self.printer.apply_color(f"User {username} logged in successfully", self.printer.COLOR_GREEN))
-		else:
-			print(self.printer.apply_color(f"Failed to login user: {username}", self.printer.COLOR_RED))
+		totp = pyotp.TOTP(user['2fa_secret'])
+		if not totp.verify(otp_input):
+			print(self.printer.apply_color("Login failed: Invalid 2FA code.", self.printer.COLOR_RED))
+			return True
+
+		print(self.printer.apply_color(f"User {username} logged in successfully", self.printer.COLOR_GREEN))
 		return True
 
 	def handle_exit(self):
