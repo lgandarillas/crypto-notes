@@ -3,6 +3,7 @@ This file contains the mode handler for the program.
 """
 
 import readline
+from authenticator import Authenticator
 
 class ModeHandler:
 	MODES = {
@@ -13,6 +14,7 @@ class ModeHandler:
 
 	def __init__(self, printer):
 		self.printer = printer
+		self.authenticator = Authenticator(printer)
 		self.mode_handlers = {
 			self.MODES["register"]: self.handle_register,
 			self.MODES["login"]: self.handle_login,
@@ -29,11 +31,17 @@ class ModeHandler:
 		return handler()
 
 	def handle_register(self):
-		print(f"You selected {self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}\n")
+		username = input("Enter your username: ").strip()
+		password = input("Enter your password: ").strip()
+		if self.authenticator.register(username, password):
+			print(f"You selected {self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}\n")
 		return True
 
 	def handle_login(self):
-		print(f"You selected {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}\n")
+		username = input("Enter your username: ").strip()
+		password = input("Enter your password: ").strip()
+		if self.authenticator.login(username, password):
+			print(f"You selected {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}\n")
 		return True
 
 	def handle_exit(self):
