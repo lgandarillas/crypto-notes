@@ -40,7 +40,7 @@ class ModeHandler:
 	def handle_register(self):
 		"""Handle the registration process for a new user."""
 		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
-		username = input("    Enter your username: ").strip()
+		username = input("    Enter a new username: ").strip()
 		password = input("    Enter your password: ").strip()
 		email = input("    Enter your email: ").strip()
 		if self.authenticator.register(username, password):
