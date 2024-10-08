@@ -24,7 +24,7 @@ def main():
         except KeyboardInterrupt:
             # Handle Ctrl+C by showing the exit message
             print("^C")
-            printer.print_exit_msg()
+            mode_handler.handle_exit()
             break
 
 if __name__ == "__main__":
