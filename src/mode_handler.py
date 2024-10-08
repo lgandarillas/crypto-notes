@@ -6,6 +6,7 @@ import readline
 import os
 import base64
 import pyotp
+import getpass
 from cryptography.fernet import Fernet
 from src.authenticator import Authenticator
 from src.utils import derive_key
@@ -41,7 +42,7 @@ class ModeHandler:
 		"""Handle the registration process for a new user."""
 		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
 		username = input("    Enter a new username: ").strip()
-		password = input("    Enter your password: ").strip()
+		password = getpass.getpass("    Enter your password: ").strip()
 		email = input("    Enter your email: ").strip()
 		if self.authenticator.register(username, password):
 			print(self.printer.apply_color(f"You successfully registered user: {username}", self.printer.COLOR_GREEN))
@@ -60,7 +61,7 @@ class ModeHandler:
 			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED))
 			return True
 
-		password = input("    Enter your password: ").strip()
+		password = getpass.getpass("    Enter your password: ").strip()
 		salt = base64.urlsafe_b64decode(user['salt'])
 		key = derive_key(password, salt)
 		f = Fernet(key)
