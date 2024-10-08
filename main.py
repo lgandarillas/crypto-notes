@@ -5,8 +5,8 @@ It will be the entry point for the application.
 By: Luis Gandarillas && Carlos Bravo
 """
 
-from prints import PrintManager
-from mode_handler import ModeHandler
+from src.prints import PrintManager
+from src.mode_handler import ModeHandler
 
 def main():
     printer = PrintManager()

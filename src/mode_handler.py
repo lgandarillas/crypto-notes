@@ -6,9 +6,9 @@ import readline
 import os
 import base64
 import pyotp
-from authenticator import Authenticator
 from cryptography.fernet import Fernet
-from utils import derive_key
+from src.authenticator import Authenticator
+from src.utils import derive_key
 
 class ModeHandler:
 	MODES = {

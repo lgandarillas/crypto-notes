@@ -6,7 +6,7 @@ import json
 import base64
 import os
 from cryptography.fernet import Fernet
-from utils import generate_salt, derive_key, generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
+from src.utils import generate_salt, derive_key, generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 DATABASE_FILE = 'users.json'
 
