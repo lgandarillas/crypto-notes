@@ -4,6 +4,7 @@ This file contains the mode handler for the program.
 
 import readline
 import os
+import re
 import base64
 import pyotp
 import getpass
@@ -45,6 +46,9 @@ class ModeHandler:
 		username = input("    Enter a new username: ").strip()
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
 		email = input("    Enter your email: ").strip()
+		if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
+			print(self.printer.apply_color("Invalid email format. Please enter a valid email.", self.printer.COLOR_RED))
+			return True
 		if self.authenticator.register(username, password):
 			print(self.printer.apply_color(f"You successfully registered user: {username}", self.printer.COLOR_GREEN))
 		else:
