@@ -11,7 +11,7 @@ import getpass
 import pwinput
 from cryptography.fernet import Fernet
 from src.authenticator import Authenticator
-from src.utils import derive_key
+from src.utils import derive_key, show_progress_bar
 
 class ModeHandler:
 	MODES = {
@@ -50,9 +50,9 @@ class ModeHandler:
 			print(self.printer.apply_color("Invalid email format. Please enter a valid email.", self.printer.COLOR_RED))
 			return True
 		if self.authenticator.register(username, password):
-			print(self.printer.apply_color(f"You successfully registered user: {username}", self.printer.COLOR_GREEN))
+			print(self.printer.apply_color(f"You successfully registered user: {username}\n", self.printer.COLOR_GREEN))
 		else:
-			print(self.printer.apply_color(f"Registration failed for user: {username}", self.printer.COLOR_RED))
+			print(self.printer.apply_color(f"Registration failed for user: {username}\n", self.printer.COLOR_RED))
 		return True
 
 	def handle_login(self):
@@ -63,7 +63,7 @@ class ModeHandler:
 		username = input("    Enter your username: ").strip()
 		user = self.authenticator.users.get(username)
 		if not user:
-			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED))
+			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.\n", self.printer.COLOR_RED))
 			return True
 
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
@@ -79,10 +79,10 @@ class ModeHandler:
 		otp_input = input("    Ener your 2FA code from Google Authenticator: ").strip()
 		totp = pyotp.TOTP(user['2fa_secret'])
 		if not totp.verify(otp_input):
-			print(self.printer.apply_color("Login failed: Invalid 2FA code.", self.printer.COLOR_RED))
+			print(self.printer.apply_color("Login failed: Invalid 2FA code.\n", self.printer.COLOR_RED))
 			return True
-
-		print(self.printer.apply_color(f"User {username} logged in successfully", self.printer.COLOR_GREEN))
+		show_progress_bar("Processing login...")
+		print(self.printer.apply_color(f"User {username} logged in successfully\n", self.printer.COLOR_GREEN))
 		return True
 
 	def handle_exit(self):
