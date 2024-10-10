@@ -1,5 +1,5 @@
 """
-This file contains the authenticator class for the program, which handles user registration and login.
+This file contains the AccountManager class for the program, which handles user registration and login.
 """
 
 import json
@@ -11,7 +11,7 @@ from src.two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_def
 
 DATABASE_FILE = 'data/users.json'
 
-class Authenticator:
+class AccountManager:
 	def __init__(self, printer):
 		self.printer = printer
 		self.users = self.load_users()

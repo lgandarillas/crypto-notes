@@ -10,7 +10,7 @@ import pyotp
 import getpass
 import pwinput
 from cryptography.fernet import Fernet
-from src.authenticator import Authenticator
+from src.account_manager import AccountManager
 from src.cryptography_utils import derive_key
 from src.ui_utils import show_progress_bar
 
@@ -24,7 +24,7 @@ class ModeHandler:
 	def __init__(self, printer):
 		"""Initialize the ModeHandler with a printer and the available modes."""
 		self.printer = printer
-		self.authenticator = Authenticator(printer)
+		self.account_manager = AccountManager(printer)
 		self.mode_handlers = {
 			self.MODES["register"]: self.handle_register,
 			self.MODES["login"]: self.handle_login,
@@ -50,7 +50,7 @@ class ModeHandler:
 		if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
 			print(self.printer.apply_color("Invalid email format. Please enter a valid email.", self.printer.COLOR_RED))
 			return True
-		if self.authenticator.register(username, password):
+		if self.account_manager.register(username, password):
 			print(self.printer.apply_color(f"You successfully registered user: {username}\n", self.printer.COLOR_GREEN))
 		else:
 			print(self.printer.apply_color(f"Registration failed for user: {username}\n", self.printer.COLOR_RED))
@@ -62,7 +62,7 @@ class ModeHandler:
 		print(self.printer.apply_color("You selected login mode", self.printer.COLOR_BLUE))
 
 		username = input("    Enter your username: ").strip()
-		user = self.authenticator.users.get(username)
+		user = self.account_manager.users.get(username)
 		if not user:
 			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.\n", self.printer.COLOR_RED))
 			return True
@@ -77,7 +77,7 @@ class ModeHandler:
 			print(self.printer.apply_color("Login failed: Incorrect password.", self.printer.COLOR_RED))
 			return True
 
-		otp_input = input("    Ener your 2FA code from Google Authenticator: ").strip()
+		otp_input = input("    Ener your 2FA code from Google account_manager: ").strip()
 		totp = pyotp.TOTP(user['2fa_secret'])
 		if not totp.verify(otp_input):
 			print(self.printer.apply_color("Login failed: Invalid 2FA code.\n", self.printer.COLOR_RED))
@@ -88,7 +88,7 @@ class ModeHandler:
 
 	def handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
-		for user in self.authenticator.users:
+		for user in self.account_manager.users:
 			qr_image_file = f"{user}_qrcode.png"
 			if os.path.exists(qr_image_file):
 				os.remove(qr_image_file)
