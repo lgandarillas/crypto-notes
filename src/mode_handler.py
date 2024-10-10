@@ -11,7 +11,8 @@ import getpass
 import pwinput
 from cryptography.fernet import Fernet
 from src.authenticator import Authenticator
-from src.utils import derive_key, show_progress_bar
+from src.cryptography_utils import derive_key
+from src.ui_utils import show_progress_bar
 
 class ModeHandler:
 	MODES = {
