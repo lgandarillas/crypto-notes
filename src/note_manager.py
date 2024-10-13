@@ -7,6 +7,7 @@ class NoteManager:
 		"new": "new",
 		"existent": "existent",
 		"list": "list",
+		"delete": "delete",
 		"exit": "exit"
 	}
 
@@ -17,13 +18,14 @@ class NoteManager:
 			self.MODES["new"]: self.handle_new_note,
 			self.MODES["existent"]: self.handle_existent_note,
 			self.MODES["list"]: self.handle_list_notes,
+			self.MODES["delete"]: self.handle_delete_note,
 			self.MODES["exit"]: self.handle_exit
 		}
 
 	def run(self):
 		while True:
 			try:
-				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}existent{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
+				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}existent{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
 				if not self.handle_mode(mode):
 					break
 			except KeyboardInterrupt:
@@ -44,6 +46,10 @@ class NoteManager:
 
 	def handle_list_notes(self):
 		print(self.printer.apply_color("You selected list notes mode", self.printer.COLOR_BLUE))
+		return True
+
+	def handle_delete_note(self):
+		print(self.printer.apply_color("You selected delete note mode", self.printer.COLOR_BLUE))
 		return True
 
 	def handle_exit(self):
