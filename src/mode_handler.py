@@ -13,6 +13,7 @@ from cryptography.fernet import Fernet
 from src.account_manager import AccountManager
 from src.cryptography_utils import derive_key
 from src.ui_utils import show_progress_bar
+from src.note_manager import NoteManager
 
 class ModeHandler:
 	MODES = {
@@ -67,6 +68,7 @@ class ModeHandler:
 		salt = base64.urlsafe_b64decode(user['salt'])
 		key = derive_key(password, salt)
 		f = Fernet(key)
+
 		try:
 			f.decrypt(user['token'].encode())
 		except Exception:
@@ -78,8 +80,13 @@ class ModeHandler:
 		if not totp.verify(otp_input):
 			print(self.printer.apply_color("Login failed: Invalid 2FA code.\n", self.printer.COLOR_RED))
 			return True
+
 		show_progress_bar("Processing login...")
 		print(self.printer.apply_color(f"User {username} logged in successfully\n", self.printer.COLOR_GREEN))
+
+		note_manager = NoteManager(self.printer, username)
+		note_manager.run()
+
 		return True
 
 	def handle_exit(self):
