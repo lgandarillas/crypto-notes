@@ -50,12 +50,10 @@ class AccountManager:
 		f = Fernet(key)
 		token = f.encrypt(password.encode())
 		secret = generate_2fa_secret()
-		email_encrypted = f.encrypt(username.encode())
 
 		self.users[username] = {
 			'salt': base64.urlsafe_b64encode(salt).decode(),
 			'token': token.decode(),
-			'email': email_encrypted.decode(),
 			'2fa_secret': secret
 		}
 		self.save_users()

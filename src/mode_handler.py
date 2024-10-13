@@ -43,14 +43,9 @@ class ModeHandler:
 		return handler()
 
 	def handle_register(self):
-		"""Handle the registration process for a new user."""
 		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
 		username = input("    Enter a new username: ").strip()
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
-		email = input("    Enter your email: ").strip()
-		if not re.match(r"[^@]+@[^@]+\.[^@]+", email):
-			print(self.printer.apply_color("Invalid email format. Please enter a valid email.", self.printer.COLOR_RED))
-			return True
 		if self.account_manager.register(username, password):
 			print(self.printer.apply_color(f"You successfully registered user: {username}\n", self.printer.COLOR_GREEN))
 		else:
