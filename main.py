@@ -12,7 +12,8 @@ def main():
     printer = PrintManager()
     printer.print_welcome_msg()
 
-    mode_handler = ModeHandler(printer)
+    encryption_key = input("Enter the encryption key: ").strip()
+    mode_handler = ModeHandler(printer, encryption_key)
     mode_handler.setup_readline_history()
 
     while True:

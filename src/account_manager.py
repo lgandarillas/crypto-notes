@@ -12,23 +12,33 @@ from src.two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_def
 DATABASE_FILE = 'data/users.json'
 
 class AccountManager:
-	def __init__(self, printer):
+	def __init__(self, printer, encryption_key):
 		self.printer = printer
+		self.encryption_key = encryption_key
 		self.users = self.load_users()
+
+	def get_key(self):
+		salt = b'salt_for_file_encryption'
+		return derive_key(self.encryption_key, salt)
 
 	def load_users(self):
 		if os.path.exists(DATABASE_FILE):
-			with open(DATABASE_FILE, 'r') as file:
+			with open(DATABASE_FILE, 'rb') as file:
+				encrypted_data = file.read()
 				try:
-					return json.load(file)
-				except json.JSONDecodeError:
+					f = Fernet(self.get_key())
+					decrypted_data = f.decrypt(encrypted_data)
+					return json.loads(decrypted_data.decode())
+				except Exception:
 					return {}
 		else:
 			return {}
 
 	def save_users(self):
-		with open(DATABASE_FILE, 'w') as file:
-			json.dump(self.users, file)
+		f = Fernet(self.get_key())
+		encrypted_data = f.encrypt(json.dumps(self.users).encode())
+		with open(DATABASE_FILE, 'wb') as file:
+			file.write(encrypted_data)
 
 	def register(self, username, password):
 		if username in self.users:

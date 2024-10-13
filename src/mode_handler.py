@@ -21,10 +21,11 @@ class ModeHandler:
 		"exit": "exit"
 	}
 
-	def __init__(self, printer):
+	def __init__(self, printer, encryption_key):
 		"""Initialize the ModeHandler with a printer and the available modes."""
 		self.printer = printer
-		self.account_manager = AccountManager(printer)
+		self.encryption_key = encryption_key
+		self.account_manager = AccountManager(printer, encryption_key)
 		self.mode_handlers = {
 			self.MODES["register"]: self.handle_register,
 			self.MODES["login"]: self.handle_login,
