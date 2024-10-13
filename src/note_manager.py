@@ -1,4 +1,5 @@
 """
+src/note_manager.py
 This file contains the note manager for the program.
 """
 
