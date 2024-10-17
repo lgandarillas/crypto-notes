@@ -18,6 +18,6 @@ def derive_key(password, salt):
         algorithm=hashes.SHA256(),
         length=32,
         salt=salt,
-        iterations=100000
+        iterations=480000
     )
     return base64.urlsafe_b64encode(kdf.derive(password.encode()))
