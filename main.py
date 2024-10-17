@@ -13,9 +13,7 @@ def main():
 	printer = PrintManager()
 	printer.print_welcome_msg()
 
-	encryption_key_prompt = printer.apply_color("Enter the encryption key for the database: ", printer.COLOR_BLUE)
-	encryption_key = pwinput.pwinput(encryption_key_prompt, mask='*').strip()
-	mode_handler = ModeHandler(printer, encryption_key)
+	mode_handler = ModeHandler(printer, "server_encryptation_key")
 	mode_handler.setup_readline_history()
 
 	while True:
