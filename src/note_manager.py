@@ -6,7 +6,7 @@ This file contains the note manager for the program.
 class NoteManager:
 	MODES = {
 		"new": "new",
-		"existent": "existent",
+		"read": "read",
 		"list": "list",
 		"delete": "delete",
 		"exit": "exit"
@@ -17,7 +17,7 @@ class NoteManager:
 		self.username = username
 		self.note_handlers = {
 			self.MODES["new"]: self.handle_new_note,
-			self.MODES["existent"]: self.handle_existent_note,
+			self.MODES["read"]: self.handle_read_note,
 			self.MODES["list"]: self.handle_list_notes,
 			self.MODES["delete"]: self.handle_delete_note,
 			self.MODES["exit"]: self.handle_exit
@@ -26,7 +26,7 @@ class NoteManager:
 	def run(self):
 		while True:
 			try:
-				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}existent{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
+				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
 				if not self.handle_mode(mode):
 					break
 			except KeyboardInterrupt:
@@ -41,8 +41,8 @@ class NoteManager:
 		print(self.printer.apply_color("You selected new note mode", self.printer.COLOR_BLUE))
 		return True
 
-	def handle_existent_note(self):
-		print(self.printer.apply_color("You selected existent note mode", self.printer.COLOR_BLUE))
+	def handle_read_note(self):
+		print(self.printer.apply_color("You selected read note mode", self.printer.COLOR_BLUE))
 		return True
 
 	def handle_list_notes(self):
