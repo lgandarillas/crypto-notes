@@ -11,10 +11,10 @@ import pyotp
 import getpass
 import pwinput
 from cryptography.fernet import Fernet
-from src.account_manager import AccountManager
-from src.cryptography_utils import derive_key
-from src.ui_utils import show_progress_bar
-from src.note_manager import NoteManager
+from account_manager import AccountManager
+from cryptography_utils import derive_key
+from ui_utils import show_progress_bar
+from note_manager import NoteManager
 
 class ModeHandler:
 	MODES = {
