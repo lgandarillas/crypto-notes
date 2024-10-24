@@ -89,11 +89,7 @@ class NoteManager:
 	def run(self):
 		while True:
 			try:
-				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, \
-							"f"{self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, \
-							"f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, \
-							"f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, \
-							"f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
+				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
 				if mode == "exit":
 					print(self.printer.apply_color("Exiting notes manager", self.printer.COLOR_RED))
 					break
