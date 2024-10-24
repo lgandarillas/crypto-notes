@@ -81,7 +81,16 @@ class NoteManager:
 
 	def handle_read_note(self):
 		print(self.printer.apply_color("You selected read note mode", self.printer.COLOR_BLUE))
-		return True
+
+		# Ask for the note name and validate it
+		note_name = input("Enter the name of the note you want to read: ").strip()
+
+		# Find the note by name
+		note = next((note for note in self.notes if note['name'] == note_name), None)
+		if note:
+			print(f"Content of '{note_name}':\n{note['content']}")
+		else:
+			print(self.printer.apply_color(f"Note '{note_name}' not found.", self.printer.COLOR_RED))
 
 	def handle_list_notes(self):
 		print(self.printer.apply_color("Your notes available are:", self.printer.COLOR_BLUE))
@@ -89,13 +98,27 @@ class NoteManager:
 		# List the note names
 		if self.notes:
 			for note in self.notes:
-				print(self.printer.apply_color(f"- {note}", self.printer.COLOR_BLUE))
+				if isinstance(note, dict) and 'name' in note:
+					print(self.printer.apply_color(f"- {note['name']}", self.printer.COLOR_BLUE))
+				else:
+					print(self.printer.apply_color("Invalid note format detected.", self.printer.COLOR_RED))
 		else:
 			print(self.printer.apply_color("No notes found.", self.printer.COLOR_RED))
 
 	def handle_delete_note(self):
 		print(self.printer.apply_color("You selected delete note mode", self.printer.COLOR_BLUE))
-		return True
+
+		# Ask for the note name
+		note_name = input("Enter the name of the note to delete: ").strip()
+
+		# Find the note by name
+		note = next((note for note in self.notes if note['name'] == note_name), None)
+		if note:
+			self.notes.remove(note)
+			self.save_notes(self.notes)
+			print(self.printer.apply_color(f"Note '{note_name}' has been deleted.", self.printer.COLOR_GREEN))
+		else:
+			print(self.printer.apply_color(f"Note '{note_name}' not found.", self.printer.COLOR_RED))
 
 	def handle_exit(self):
 		print(self.printer.apply_color("Exiting notes manager", self.printer.COLOR_RED))
