@@ -58,8 +58,23 @@ class NoteManager:
 			print(self.printer.apply_color(f"Note '{note_name}' already exists. Please choose a different name.", self.printer.COLOR_RED))
 			return
 
+		# Capture the note content
+		print(self.printer.apply_color("Enter the note content (press Ctrl+D to finish):", self.printer.COLOR_BLUE))
+		note_content = []
+		while True:
+			try:
+				line = input()
+			except EOFError:
+				break
+			note_content.append(line)
+		note_content = "\n".join(note_content)
+		new_note = {
+			"name": note_name,
+			"content": note_content
+		}
+
 		# Add the new note to the notes list
-		self.notes.append(note_name)
+		self.notes.append(new_note)
 		self.save_notes(self.notes)
 
 		print(self.printer.apply_color(f"Note '{note_name}' has been created.", self.printer.COLOR_GREEN))
