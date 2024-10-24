@@ -77,7 +77,7 @@ class NoteManager:
 		self.notes.append(new_note)
 		self.save_notes(self.notes)
 
-		print(self.printer.apply_color(f"Note '{note_name}' has been created.", self.printer.COLOR_GREEN))
+		print(self.printer.apply_color(f"Note '{note_name}' has been created.\n", self.printer.COLOR_GREEN))
 
 	def handle_read_note(self):
 		print(self.printer.apply_color("You selected read note mode", self.printer.COLOR_BLUE))
@@ -102,8 +102,9 @@ class NoteManager:
 					print(self.printer.apply_color(f"- {note['name']}", self.printer.COLOR_BLUE))
 				else:
 					print(self.printer.apply_color("Invalid note format detected.", self.printer.COLOR_RED))
+			print("\n")
 		else:
-			print(self.printer.apply_color("No notes found.", self.printer.COLOR_RED))
+			print(self.printer.apply_color("No notes found.\n", self.printer.COLOR_RED))
 
 	def handle_delete_note(self):
 		print(self.printer.apply_color("You selected delete note mode", self.printer.COLOR_BLUE))
@@ -116,7 +117,7 @@ class NoteManager:
 		if note:
 			self.notes.remove(note)
 			self.save_notes(self.notes)
-			print(self.printer.apply_color(f"Note '{note_name}' has been deleted.", self.printer.COLOR_GREEN))
+			print(self.printer.apply_color(f"Note '{note_name}' has been deleted.\n", self.printer.COLOR_GREEN))
 		else:
 			print(self.printer.apply_color(f"Note '{note_name}' not found.", self.printer.COLOR_RED))
 
