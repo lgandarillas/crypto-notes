@@ -69,7 +69,7 @@ class NoteManager:
 		return True
 
 	def handle_list_notes(self):
-		print(self.printer.apply_color("You selected list notes mode", self.printer.COLOR_BLUE))
+		print(self.printer.apply_color("Your notes available are:", self.printer.COLOR_BLUE))
 
 		# List the note names
 		if self.notes:
