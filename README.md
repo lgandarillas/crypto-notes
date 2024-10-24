@@ -21,5 +21,5 @@
     ```
 3. Run the Python script using the following command:
 	```bash
-	python main.py
+	python src/main.py
 	```
