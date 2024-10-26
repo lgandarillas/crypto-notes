@@ -12,14 +12,13 @@ from cryptography.fernet import Fernet
 from cryptography_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
-DATABASE_FILE = 'data/users.json'
-
 class AccountManager:
 	"""Manages user accounts, including registration, login, and data encryption."""
 
-	def __init__(self, printer, encryption_key):
+	def __init__(self, printer, encryption_key, database='data/users.json'):
 		self.printer = printer
 		self.encryption_key = encryption_key
+		self.database = database
 		self.users = self.load_users()
 
 	def get_encryption_key(self):
@@ -28,10 +27,10 @@ class AccountManager:
 
 	def load_users(self):
 		"""Loads user data from a file, decrypts it, and returns it as a dictionary."""
-		if not os.path.exists(DATABASE_FILE):
+		if not os.path.exists(self.database):
 			return {}
 
-		with open(DATABASE_FILE, 'rb') as file:
+		with open(self.database, 'rb') as file:
 			encrypted_data = file.read()
 			try:
 				decryptor = Fernet(self.get_encryption_key())
@@ -45,7 +44,7 @@ class AccountManager:
 		"""Encrypts and saves the current user data to a file."""
 		f = Fernet(self.get_encryption_key())
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
-		with open(DATABASE_FILE, 'wb') as file:
+		with open(self.database, 'wb') as file:
 			file.write(encrypted_data)
 
 	def register(self, username, password):
