@@ -49,40 +49,59 @@ class ModeHandler:
 	def handle_register(self):
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
-		username = input("    Enter a new username: ").strip()
-		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
+		username = input("	Enter a new username: ").strip()
+		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
 		if self.account_manager.register(username, password):
 			self.printer.print_success(f"You successfully registered user: {username}")
 		else:
 			self.printer.print_error(f"Registration failed for user: {username}")
 		return True
 
-	def handle_login(self):
-		"""Handle the login process for an existing user."""
+	@staticmethod
+	def verify_user(username, account_manager, printer):
+		"""Verify the user exists."""
+		if username not in account_manager.users:
+			printer.print_error(f"Login failed: Username '{username}' not found.")
+			return False
+		return True
 
-		self.printer.print_action("You selected login mode")
-
-		username = input("    Enter your username: ").strip()
-		user = self.account_manager.users.get(username)
-		if not user:
-			self.printer.print_error(f"Login failed: Username '{username}' not found.")
-			return True
-
-		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
+	@staticmethod
+	def verify_password(user, password, printer):
+		"""Verify if the provided password matches the stored token."""
 		salt = base64.urlsafe_b64decode(user['salt'])
 		key = derive_key(password, salt)
 		f = Fernet(key)
-
 		try:
 			f.decrypt(user['token'].encode())
-		except Exception:
-			self.printer.print_error(f"Login failed: Incorrect password for user: '{username}'.")
 			return True
+		except Exception:
+			printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
+			return False
 
-		otp_input = input("    Ener your 2FA code from Google account_manager: ").strip()
+	@staticmethod
+	def verify_2fa(user, otp_input, printer):
+		"""Verify the 2FA code using the user's secret."""
 		totp = pyotp.TOTP(user['2fa_secret'])
 		if not totp.verify(otp_input):
-			self.printer.print_error("Login failed: Invalid 2FA code.")
+			printer.print_error("Login failed: Invalid 2FA code.")
+			return False
+		return True
+
+	def handle_login(self):
+		"""Handle the login process for an existing user."""
+		self.printer.print_action("You selected login mode")
+
+		username = input("	Enter your username: ").strip()
+		if not self.verify_user(username, self.account_manager, self.printer):
+			return True
+
+		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
+		user = self.account_manager.users.get(username)
+		if not self.verify_password(user, password, self.printer):
+			return True
+
+		otp_input = input("	Ener your 2FA code from Google account_manager: ").strip()
+		if not self.verify_2fa(user, otp_input, self.printer):
 			return True
 
 		show_progress_bar("Processing login...")
