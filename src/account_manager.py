@@ -23,19 +23,20 @@ class AccountManager:
 		self.users = self.load_users()
 
 	def get_encryption_key(self):
-		salt = b'salt_for_file_encryption'
-		return self.crypto_utils.derive_key(self.encryption_key, salt)
+		salt = os.urandom(16)
+		return self.crypto_utils.derive_key(self.encryption_key, salt), salt
 
 	def load_users(self):
-		"""Loads user data from a file, decrypts it, and returns it as a dictionary."""
 		if not os.path.exists(self.database):
 			return {}
 
 		with open(self.database, 'rb') as file:
+			salt = file.read(16)
 			encrypted_data = file.read()
 			self.printer.print_debug("[DEBUG] Loading and decrypting user data.")
 			try:
-				decryptor = Fernet(self.get_encryption_key())
+				key = self.crypto_utils.derive_key(self.encryption_key, salt)
+				decryptor = Fernet(key)
 				decrypted_data = decryptor.decrypt(encrypted_data)
 				self.printer.print_debug("[DEBUG] User data decrypted.")
 				return json.loads(decrypted_data.decode())
@@ -44,11 +45,12 @@ class AccountManager:
 				return {}
 
 	def save_users(self):
-		"""Encrypts and saves the current user data to a file."""
-		f = Fernet(self.get_encryption_key())
+		key, salt = self.get_encryption_key()
+		f = Fernet(key)
 		self.printer.print_debug("[DEBUG] Encrypting and saving user data.")
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
 		with open(self.database, 'wb') as file:
+			file.write(salt)
 			file.write(encrypted_data)
 
 	def register(self, username, password):
