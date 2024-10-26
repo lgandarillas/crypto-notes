@@ -9,7 +9,7 @@ import os
 import json
 import base64
 from cryptography.fernet import Fernet
-from cryptography_utils import generate_salt, derive_key
+from crypto_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 class AccountManager:

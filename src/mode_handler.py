@@ -13,7 +13,7 @@ import getpass
 import pwinput
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
-from cryptography_utils import derive_key
+from crypto_utils import derive_key
 from note_operations import NoteHandler
 
 class ModeHandler:
