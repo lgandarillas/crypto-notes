@@ -7,41 +7,43 @@ leveraging cryptographic utilities for secure password handling and user data en
 
 import os
 import json
-import base64
 from cryptography.fernet import Fernet
+from base64 import urlsafe_b64encode, urlsafe_b64decode
 from cryptography_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 DATABASE_FILE = 'data/users.json'
 
 class AccountManager:
+	"""Manages user accounts, including registration, login, and data encryption."""
 
 	def __init__(self, printer, encryption_key):
 		self.printer = printer
 		self.encryption_key = encryption_key
 		self.users = self.load_users()
 
-	def get_key(self):
+	def get_encryption_key(self):
 		salt = b'salt_for_file_encryption'
 		return derive_key(self.encryption_key, salt)
 
 	def load_users(self):
 		"""Loads user data from a file, decrypts it, and returns it as a dictionary."""
-		if os.path.exists(DATABASE_FILE):
-			with open(DATABASE_FILE, 'rb') as file:
-				encrypted_data = file.read()
-				try:
-					f = Fernet(self.get_key())
-					decrypted_data = f.decrypt(encrypted_data)
-					return json.loads(decrypted_data.decode())
-				except Exception:
-					return {}
-		else:
+		if not os.path.exists(DATABASE_FILE):
 			return {}
+
+		with open(DATABASE_FILE, 'rb') as file:
+			encrypted_data = file.read()
+			try:
+				decryptor = Fernet(self.get_encryption_key())
+				decrypted_data = decryptor.decrypt(encrypted_data)
+				return json.loads(decrypted_data.decode())
+			except Exception as e:
+				self.printer.print_error(f"Failed to load users: {e}")
+				return {}
 
 	def save_users(self):
 		"""Encrypts and saves the current user data to a file."""
-		f = Fernet(self.get_key())
+		f = Fernet(self.get_encryption_key())
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
 		with open(DATABASE_FILE, 'wb') as file:
 			file.write(encrypted_data)
