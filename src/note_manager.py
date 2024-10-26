@@ -49,23 +49,28 @@ class NoteManager:
 		with open(self.notes_file, 'w') as file:
 			json.dump(notes, file, indent=4)
 
+	@staticmethod
+	def validate_note_name(note_name, notes, printer):
+		"""Validates the note name and checks if it already exists."""
+		if not re.match(r'^\w+$', note_name):
+			printer.print_error("Invalid note name. Only letters, numbers, and underscores are allowed.")
+			return False
+
+		if any(note["name"] == note_name for note in notes):
+			printer.print_error(f"Note '{note_name}' already exists. Please choose a different name.")
+			return False
+
+		return True
+
 	def handle_new_note(self):
 		"""Handles the creation of a new note, including input validation and storage."""
 
 		self.printer.print_action("You selected new note mode")
 
-		# Ask for the note name and validate it
 		note_name = input("Enter a name for the new note (letters, numbers, underscores only): ").strip()
-		if not re.match(r'^\w+$', note_name):
-			self.printer.print_error("Invalid note name. Only letters, numbers, and underscores are allowed.")
+		if not self.validate_note_name(note_name, self.notes, self.printer):
 			return
 
-		# Verify if the note name already exists
-		if note_name in self.notes:
-			self.printer.print_error(f"Note '{note_name}' already exists. Please choose a different name.")
-			return
-
-		# Capture the note content
 		self.printer.print_action("Enter the note content (press Ctrl+D to finish):")
 		note_content = []
 		while True:
@@ -80,7 +85,6 @@ class NoteManager:
 			"content": note_content
 		}
 
-		# Add the new note to the notes list
 		self.notes.append(new_note)
 		self.save_notes(self.notes)
 
@@ -91,10 +95,8 @@ class NoteManager:
 
 		self.printer.print_action("You selected read note mode")
 
-		# Ask for the note name and validate it
 		note_name = input("Enter the name of the note you want to read: ").strip()
 
-		# Find the note by name
 		note = next((note for note in self.notes if note['name'] == note_name), None)
 		if note:
 			print(f"Content of '{note_name}':\n{note['content']}")
@@ -106,7 +108,6 @@ class NoteManager:
 
 		self.printer.print_action("Your notes available are:")
 
-		# List the note names
 		if self.notes:
 			for note in self.notes:
 				if isinstance(note, dict) and 'name' in note:
@@ -121,10 +122,7 @@ class NoteManager:
 
 		self.printer.print_action("You selected delete note mode")
 
-		# Ask for the note name
 		note_name = input("Enter the name of the note to delete: ").strip()
-
-		# Find the note by name
 		note = next((note for note in self.notes if note['name'] == note_name), None)
 		if note:
 			self.notes.remove(note)
@@ -132,6 +130,7 @@ class NoteManager:
 			self.printer.print_success(f"Note '{note_name}' has been deleted.")
 		else:
 			self.printer.print_error(f"Note '{note_name}' not found.")
+
 	def handle_exit(self):
 		"""Handles the exit process from the note manager."""
 		self.printer.print_error("Exiting notes manager")

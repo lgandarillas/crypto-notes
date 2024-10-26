@@ -66,7 +66,7 @@ class ModeHandler:
 		return True
 
 	@staticmethod
-	def verify_password(user, password, printer):
+	def verify_password(user, password, printer, username):
 		"""Verify if the provided password matches the stored token."""
 		salt = base64.urlsafe_b64decode(user['salt'])
 		key = derive_key(password, salt)
@@ -97,7 +97,7 @@ class ModeHandler:
 
 		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
 		user = self.account_manager.users.get(username)
-		if not self.verify_password(user, password, self.printer):
+		if not self.verify_password(user, password, self.printer, username):
 			return True
 
 		otp_input = input("	Ener your 2FA code from Google account_manager: ").strip()
