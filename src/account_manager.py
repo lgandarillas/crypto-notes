@@ -1,11 +1,13 @@
 """
 src/account_manager.py
-This file contains the AccountManager class for the program, which handles user registration and login.
+
+Handles the management of user accounts, including registration and login processes,
+leveraging cryptographic utilities for secure password handling and user data encryption.
 """
 
+import os
 import json
 import base64
-import os
 from cryptography.fernet import Fernet
 from cryptography_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
@@ -13,6 +15,7 @@ from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default
 DATABASE_FILE = 'data/users.json'
 
 class AccountManager:
+	
 	def __init__(self, printer, encryption_key):
 		self.printer = printer
 		self.encryption_key = encryption_key
