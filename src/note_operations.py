@@ -111,7 +111,7 @@ class NoteHandler:
 		if self.notes:
 			for note in self.notes:
 				if isinstance(note, dict) and 'name' in note:
-					self.printer.print_action(f"- {note['content']}")
+					self.printer.print_action(f"- {note['name']}")
 				else:
 					self.printer.print_error("Invalid note format detected.")
 		else:

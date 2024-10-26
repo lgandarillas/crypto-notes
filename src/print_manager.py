@@ -21,16 +21,16 @@ class PrintManager:
 
 	def print_welcome_msg(self):
 		"""Print the welcome message with blue color."""
-		msg = r"""        __        __   _                                 _
-        \ \      / /__| | ___ ___  _ __ ___   ___       | |_ ___
-         \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \      | __/ _ \
-          \ V  V /  __/ | (_| (_) | | | | | |  __/      | || (_) |
- _____     \_/\_/ \___|_|\___\___/|_| |_| |_|\___| _   _ \__\___/
+		msg = r"""		__		__   _								 _
+		\ \	  / /__| | ___ ___  _ __ ___   ___	   | |_ ___
+		 \ \ /\ / / _ \ |/ __/ _ \| '_ ` _ \ / _ \	  | __/ _ \
+		  \ V  V /  __/ | (_| (_) | | | | | |  __/	  | || (_) |
+ _____	 \_/\_/ \___|_|\___\___/|_| |_| |_|\___| _   _ \__\___/
 | ____|_ __   ___ _ __ _   _ _ __ | |_ ___  __| | | \ | | ___ | |_ ___  ___
 |  _| | '_ \ / __| '__| | | | '_ \| __/ _ \/ _` | |  \| |/ _ \| __/ _ \/ __|
 | |___| | | | (__| |  | |_| | |_) | ||  __/ (_| | | |\  | (_) | ||  __/\__ \
 |_____|_| |_|\___|_|   \__, | .__/ \__\___|\__,_| |_| \_|\___/ \__\___||___/
-                       |___/|_|                                             """
+					   |___/|_|											 """
 		print(self.apply_color(msg, self.COLOR_BLUE))
 
 	def print_exit_msg(self):
@@ -62,7 +62,7 @@ class PrintManager:
 		debug_msg = self.apply_color(message, self.COLOR_GRAY)
 		print(debug_msg)
 
-	def show_progress_bar(task_description="Processing... ", duration=2.0):
+	def show_progress_bar(self, task_description="Processing... ", duration=2.0):
 		"""Show a progress bar with a given task description and duration."""
 		with Bar(task_description, max=100) as bar:
 			for i in range(100):
