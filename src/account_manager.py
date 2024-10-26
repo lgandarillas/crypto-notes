@@ -8,8 +8,8 @@ leveraging cryptographic utilities for secure password handling and user data en
 import os
 import json
 import base64
+from crypto_utils import CryptoUtils
 from cryptography.fernet import Fernet
-from crypto_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 class AccountManager:
@@ -19,11 +19,12 @@ class AccountManager:
 		self.printer = printer
 		self.encryption_key = encryption_key
 		self.database = database
+		self.crypto_utils = CryptoUtils(printer)
 		self.users = self.load_users()
 
 	def get_encryption_key(self):
 		salt = b'salt_for_file_encryption'
-		return derive_key(self.encryption_key, salt)
+		return self.crypto_utils.derive_key(self.encryption_key, salt)
 
 	def load_users(self):
 		"""Loads user data from a file, decrypts it, and returns it as a dictionary."""
@@ -32,6 +33,7 @@ class AccountManager:
 
 		with open(self.database, 'rb') as file:
 			encrypted_data = file.read()
+			self.printer.print_debug("[DEBUG] Loading and decrypting user data.")
 			try:
 				decryptor = Fernet(self.get_encryption_key())
 				decrypted_data = decryptor.decrypt(encrypted_data)
@@ -43,6 +45,7 @@ class AccountManager:
 	def save_users(self):
 		"""Encrypts and saves the current user data to a file."""
 		f = Fernet(self.get_encryption_key())
+		self.printer.print_debug("[DEBUG] Encrypting and saving user data.")
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
 		with open(self.database, 'wb') as file:
 			file.write(encrypted_data)
@@ -53,9 +56,10 @@ class AccountManager:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
 
-		salt = generate_salt()
-		key = derive_key(password, salt)
+		salt = self.crypto_utils.generate_salt()
+		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
+		self.printer.print_debug("[DEBUG] Encrypting new user data for registration.")
 		token = f.encrypt(password.encode())
 		secret = generate_2fa_secret()
 
@@ -87,8 +91,8 @@ class AccountManager:
 		f = Fernet(key)
 
 		try:
+			self.printer.print_debug("[DEBUG] Decrypting token to verify login credentials.")
 			f.decrypt(stored_token.encode())
-
 			totp = pyotp.TOTP(user['2fa_secret'])
 			if not totp.verify(otp_input):
 				self.printer.print_error("Login failed: Invalid 2FA code.")

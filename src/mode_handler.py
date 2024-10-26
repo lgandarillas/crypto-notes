@@ -13,7 +13,7 @@ import getpass
 import pwinput
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
-from crypto_utils import derive_key
+from crypto_utils import CryptoUtils
 from note_operations import NoteHandler
 
 class ModeHandler:
@@ -34,6 +34,7 @@ class ModeHandler:
 			self.MODES["login"]: self.handle_login,
 			self.MODES["exit"]: self.handle_exit
 		}
+		self.crypto_utils = CryptoUtils(printer)
 
 	def setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
@@ -65,10 +66,10 @@ class ModeHandler:
 		return True
 
 	@staticmethod
-	def verify_password(user, password, printer, username):
+	def verify_password(user, password, printer, username, crypto_utils):
 		"""Verify if the provided password matches the stored token."""
 		salt = base64.urlsafe_b64decode(user['salt'])
-		key = derive_key(password, salt)
+		key = crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
 		try:
 			f.decrypt(user['token'].encode())
@@ -96,7 +97,7 @@ class ModeHandler:
 
 		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
 		user = self.account_manager.users.get(username)
-		if not self.verify_password(user, password, self.printer, username):
+		if not self.verify_password(user, password, self.printer, username, self.crypto_utils):
 			return True
 
 		otp_input = input("	Ener your 2FA code from Google account_manager: ").strip()
