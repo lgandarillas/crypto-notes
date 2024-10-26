@@ -28,21 +28,25 @@ class AccountManager:
 
 	def load_users(self):
 		if not os.path.exists(self.database):
+			with open(self.database, 'wb') as file:
+				file.write(b"")
 			return {}
-
-		with open(self.database, 'rb') as file:
-			salt = file.read(16)
-			encrypted_data = file.read()
-			self.printer.print_debug("[DEBUG] Loading and decrypting user data.")
-			try:
+		try:
+			with open(self.database, 'rb') as file:
+				salt = file.read(16)
+				if not salt:
+					return {}
+				encrypted_data = file.read()
+				if not encrypted_data:
+					return {}
 				key = self.crypto_utils.derive_key(self.encryption_key, salt)
 				decryptor = Fernet(key)
 				decrypted_data = decryptor.decrypt(encrypted_data)
 				self.printer.print_debug("[DEBUG] User data decrypted.")
 				return json.loads(decrypted_data.decode())
-			except Exception as e:
-				self.printer.print_error(f"Failed to load users: {e}")
-				return {}
+		except Exception as e:
+			self.printer.print_error(f"Failed to load users {e}")
+			return {}
 
 	def save_users(self):
 		key, salt = self.get_encryption_key()
