@@ -37,6 +37,7 @@ class AccountManager:
 			try:
 				decryptor = Fernet(self.get_encryption_key())
 				decrypted_data = decryptor.decrypt(encrypted_data)
+				self.printer.print_debug("[DEBUG] User data decrypted.")
 				return json.loads(decrypted_data.decode())
 			except Exception as e:
 				self.printer.print_error(f"Failed to load users: {e}")
@@ -59,8 +60,8 @@ class AccountManager:
 		salt = self.crypto_utils.generate_salt()
 		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
-		self.printer.print_debug("[DEBUG] Encrypting new user data for registration.")
 		token = f.encrypt(password.encode())
+		self.printer.print_debug("[DEBUG] User data encrypted for registration.")
 		secret = generate_2fa_secret()
 
 		self.users[username] = {
@@ -70,7 +71,7 @@ class AccountManager:
 		}
 		self.save_users()
 
-		qr_code_image = get_qr_code(username, secret)
+		qr_code_image = get_qr_code(username, secret, self.printer)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)

@@ -27,5 +27,5 @@ class CryptoUtils:
 			salt=salt,
 			iterations=480000
 		)
-		self.printer.print_debug("[DEBUG] Deriving a secure key from password and salt.")
+		self.printer.print_debug("[DEBUG] Deriving a secure key from password and salt using PBKDF2.")
 		return base64.urlsafe_b64encode(kdf.derive(password.encode()))
