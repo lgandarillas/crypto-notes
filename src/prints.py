@@ -4,6 +4,8 @@ src/prints.py
 This file contains the print functions for the program.
 """
 
+import sys
+
 class PrintManager:
 	COLOR_RED = "\033[91m"
 	COLOR_GREEN = "\033[92m"
@@ -47,6 +49,11 @@ class PrintManager:
 		"""Print success messages in green color."""
 		success_msg = self.apply_color(message, self.COLOR_GREEN)
 		print(success_msg)
+
+	def print_action(self, message: str):
+		"""Print action messages in blue color."""
+		action_msg = self.apply_color(message, self.COLOR_BLUE)
+		print(action_msg)
 
 	def print_debug(self, message: str):
 		"""Print debug messages in gray color."""

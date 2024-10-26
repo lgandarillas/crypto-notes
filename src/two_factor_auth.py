@@ -30,4 +30,4 @@ def open_qr_in_default_viewer(qr_image_file, printer):
 		elif os.name == 'nt':
 			os.startfile(qr_image_file)
 	except Exception as ex:
-		printer.apply_color(f"Error opening QR code image: {ex}", printer.COLOR_RED)
+		self.printer.print_error(f"Error opening QR code image: {ex}")

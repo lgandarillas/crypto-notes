@@ -48,24 +48,24 @@ class ModeHandler:
 
 	def handle_register(self):
 		"""Handles user registration process."""
-		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
+		self.printer.print_action("You selected register mode")
 		username = input("    Enter a new username: ").strip()
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
 		if self.account_manager.register(username, password):
-			print(self.printer.apply_color(f"You successfully registered user: {username}\n", self.printer.COLOR_GREEN))
+			self.printer.print_success(f"You successfully registered user: {username}")
 		else:
-			print(self.printer.apply_color(f"Registration failed for user: {username}\n", self.printer.COLOR_RED))
+			self.printer.print_error(f"Registration failed for user: {username}")
 		return True
 
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
 
-		print(self.printer.apply_color("You selected login mode", self.printer.COLOR_BLUE))
+		self.printer.print_action("You selected login mode")
 
 		username = input("    Enter your username: ").strip()
 		user = self.account_manager.users.get(username)
 		if not user:
-			print(self.printer.apply_color(f"Login failed: Username '{username}' not found.\n", self.printer.COLOR_RED))
+			self.printer.print_error(f"Login failed: Username '{username}' not found.")
 			return True
 
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
@@ -76,17 +76,17 @@ class ModeHandler:
 		try:
 			f.decrypt(user['token'].encode())
 		except Exception:
-			print(self.printer.apply_color("Login failed: Incorrect password.", self.printer.COLOR_RED))
+			self.printer.print_error(f"Login failed: Incorrect password for user: '{username}'.")
 			return True
 
 		otp_input = input("    Ener your 2FA code from Google account_manager: ").strip()
 		totp = pyotp.TOTP(user['2fa_secret'])
 		if not totp.verify(otp_input):
-			print(self.printer.apply_color("Login failed: Invalid 2FA code.\n", self.printer.COLOR_RED))
+			self.printer.print_error("Login failed: Invalid 2FA code.")
 			return True
 
 		show_progress_bar("Processing login...")
-		print(self.printer.apply_color(f"User {username} logged in successfully\n", self.printer.COLOR_GREEN))
+		self.printer.print_success(f"User {username} logged in successfully!")
 
 		note_manager = NoteManager(self.printer, username)
 		note_manager.run()

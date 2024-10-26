@@ -7,8 +7,8 @@ leveraging cryptographic utilities for secure password handling and user data en
 
 import os
 import json
+import base64
 from cryptography.fernet import Fernet
-from base64 import urlsafe_b64encode, urlsafe_b64decode
 from cryptography_utils import generate_salt, derive_key
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
@@ -51,7 +51,7 @@ class AccountManager:
 	def register(self, username, password):
 		"""Registers a new user with a username and password, encrypts their data, and handles 2FA setup."""
 		if username in self.users:
-			self.printer.apply_color(f"Registration failed: Username '{username}' already exists.", self.printer.COLOR_RED)
+			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
 
 		salt = generate_salt()
@@ -73,14 +73,13 @@ class AccountManager:
 			qr_file.write(qr_code_image)
 
 		open_qr_in_default_viewer(qr_image_file, self.printer)
-		self.printer.apply_color(f"Registration successful for user: {username}", self.printer.COLOR_GREEN)
 		return True
 
 	def login(self, username, password, otp_input):
 		"""Attempts to log in a user with the given username, password, and 2FA code."""
 		user = self.users.get(username)
 		if not user:
-			self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED)
+			self.printer.print_error(f"Login failed: Username '{username}' not found.")
 			return False
 
 		salt = base64.urlsafe_b64decode(user['salt'])
@@ -93,11 +92,10 @@ class AccountManager:
 
 			totp = pyotp.TOTP(user['2fa_secret'])
 			if not totp.verify(otp_input):
-				self.printer.apply_color("Login failed: Invalid 2FA code.", self.printer.COLOR_RED)
+				self.printer.print_error("Login failed: Invalid 2FA code.")
 				return False
-
-			self.printer.apply_color(f"Login successful for user: {username}!", self.printer.COLOR_GREEN)
+			self.printer.print_success(f"Login successful for user: {username}!")
 			return True
 		except Exception:
-			self.printer.apply_color(f"Login failed: Incorrect password for user '{username}'.", self.printer.COLOR_RED)
+			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
 			return False
