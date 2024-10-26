@@ -1,5 +1,6 @@
 """
 src/note_manager.py
+
 This file contains the note manager for the program.
 """
 
@@ -8,6 +9,8 @@ import os
 import re
 
 class NoteManager:
+	"""Manages note-taking functionalities, including creating, reading, listing, and deleting notes."""
+
 	MODES = {
 		"new": "new",
 		"read": "read",
@@ -30,6 +33,7 @@ class NoteManager:
 		}
 
 	def load_notes(self):
+		"""Loads notes from a file associated with the user."""
 		if os.path.exists(self.notes_file):
 			with open(self.notes_file, 'rb') as file:
 				try:
@@ -41,10 +45,13 @@ class NoteManager:
 			return []
 
 	def save_notes(self, notes):
+		"""Saves the current list of notes to the user's file."""
 		with open(self.notes_file, 'w') as file:
 			json.dump(notes, file, indent=4)
 
 	def handle_new_note(self):
+		"""Handles the creation of a new note, including input validation and storage."""
+
 		print(self.printer.apply_color("You selected new note mode", self.printer.COLOR_BLUE))
 
 		# Ask for the note name and validate it
@@ -80,6 +87,8 @@ class NoteManager:
 		print(self.printer.apply_color(f"Note '{note_name}' has been created.\n", self.printer.COLOR_GREEN))
 
 	def handle_read_note(self):
+		"""Handles reading a note by name, displaying its content if found."""
+
 		print(self.printer.apply_color("You selected read note mode", self.printer.COLOR_BLUE))
 
 		# Ask for the note name and validate it
@@ -93,6 +102,8 @@ class NoteManager:
 			print(self.printer.apply_color(f"Note '{note_name}' not found.", self.printer.COLOR_RED))
 
 	def handle_list_notes(self):
+		"""Lists all notes currently stored for the user."""
+
 		print(self.printer.apply_color("Your notes available are:", self.printer.COLOR_BLUE))
 
 		# List the note names
@@ -107,6 +118,8 @@ class NoteManager:
 			print(self.printer.apply_color("No notes found.\n", self.printer.COLOR_RED))
 
 	def handle_delete_note(self):
+		"""Deletes a note by name if it exists."""
+
 		print(self.printer.apply_color("You selected delete note mode", self.printer.COLOR_BLUE))
 
 		# Ask for the note name
@@ -122,10 +135,13 @@ class NoteManager:
 			print(self.printer.apply_color(f"Note '{note_name}' not found.", self.printer.COLOR_RED))
 
 	def handle_exit(self):
+		"""Handles the exit process from the note manager."""
 		print(self.printer.apply_color("Exiting notes manager", self.printer.COLOR_RED))
 		return False
 
 	def run(self):
+		"""Runs the note management session, allowing the user to choose different note operations."""
+
 		while True:
 			try:
 				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
@@ -139,9 +155,11 @@ class NoteManager:
 				break
 
 	def handle_mode(self, mode):
+		"""Dispatches the action based on the mode chosen by the user."""
 		handler = self.note_handlers.get(mode, self.handle_invalid_mode)
 		return handler()
 
 	def handle_invalid_mode(self):
+		"""Informs the user that an invalid mode has been selected."""
 		print(self.printer.apply_color("Invalid mode selected", self.printer.COLOR_RED))
 		return True

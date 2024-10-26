@@ -15,7 +15,7 @@ from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default
 DATABASE_FILE = 'data/users.json'
 
 class AccountManager:
-	
+
 	def __init__(self, printer, encryption_key):
 		self.printer = printer
 		self.encryption_key = encryption_key
@@ -26,6 +26,7 @@ class AccountManager:
 		return derive_key(self.encryption_key, salt)
 
 	def load_users(self):
+		"""Loads user data from a file, decrypts it, and returns it as a dictionary."""
 		if os.path.exists(DATABASE_FILE):
 			with open(DATABASE_FILE, 'rb') as file:
 				encrypted_data = file.read()
@@ -39,12 +40,14 @@ class AccountManager:
 			return {}
 
 	def save_users(self):
+		"""Encrypts and saves the current user data to a file."""
 		f = Fernet(self.get_key())
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
 		with open(DATABASE_FILE, 'wb') as file:
 			file.write(encrypted_data)
 
 	def register(self, username, password):
+		"""Registers a new user with a username and password, encrypts their data, and handles 2FA setup."""
 		if username in self.users:
 			self.printer.apply_color(f"Registration failed: Username '{username}' already exists.", self.printer.COLOR_RED)
 			return False
@@ -72,6 +75,7 @@ class AccountManager:
 		return True
 
 	def login(self, username, password, otp_input):
+		"""Attempts to log in a user with the given username, password, and 2FA code."""
 		user = self.users.get(username)
 		if not user:
 			self.printer.apply_color(f"Login failed: Username '{username}' not found.", self.printer.COLOR_RED)

@@ -1,5 +1,6 @@
 """
 src/mode_handler.py
+
 This file contains the mode handler for the program.
 """
 
@@ -17,6 +18,8 @@ from ui_utils import show_progress_bar
 from note_manager import NoteManager
 
 class ModeHandler:
+	"""Handles different operating modes of the application such as register, login, and exit."""
+
 	MODES = {
 		"register": "register",
 		"login": "login",
@@ -24,7 +27,6 @@ class ModeHandler:
 	}
 
 	def __init__(self, printer, encryption_key):
-		"""Initialize the ModeHandler with a printer and the available modes."""
 		self.printer = printer
 		self.encryption_key = encryption_key
 		self.account_manager = AccountManager(printer, encryption_key)
@@ -45,6 +47,7 @@ class ModeHandler:
 		return handler()
 
 	def handle_register(self):
+		"""Handles user registration process."""
 		print(self.printer.apply_color("You selected register mode", self.printer.COLOR_BLUE))
 		username = input("    Enter a new username: ").strip()
 		password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
