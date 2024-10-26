@@ -6,7 +6,7 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import pwinput
-from prints import PrintManager
+from print_manager import PrintManager
 from mode_handler import ModeHandler
 
 def main():

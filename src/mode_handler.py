@@ -14,8 +14,7 @@ import pwinput
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
 from cryptography_utils import derive_key
-from ui_utils import show_progress_bar
-from note_manager import NoteManager
+from note_operations import NoteHandler
 
 class ModeHandler:
 	"""Handles different operating modes of the application such as register, login, and exit."""
@@ -104,11 +103,11 @@ class ModeHandler:
 		if not self.verify_2fa(user, otp_input, self.printer):
 			return True
 
-		show_progress_bar("Processing login...")
+		self.printer.show_progress_bar("Processing login...")
 		self.printer.print_success(f"User {username} logged in successfully!")
 
-		note_manager = NoteManager(self.printer, username)
-		note_manager.run()
+		note_operations = NoteHandler(self.printer, username)
+		note_operations.run()
 
 		return True
 

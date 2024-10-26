@@ -1,10 +1,12 @@
 """
-src/prints.py
+src/print_manager.py
 
 This file contains the print functions for the program.
 """
 
 import sys
+from time import sleep
+from progress.bar import Bar
 
 class PrintManager:
 	COLOR_RED = "\033[91m"
@@ -59,3 +61,10 @@ class PrintManager:
 		"""Print debug messages in gray color."""
 		debug_msg = self.apply_color(message, self.COLOR_GRAY)
 		print(debug_msg)
+
+	def show_progress_bar(task_description="Processing... ", duration=2.0):
+		"""Show a progress bar with a given task description and duration."""
+		with Bar(task_description, max=100) as bar:
+			for i in range(100):
+				sleep(duration / 100)
+				bar.next()

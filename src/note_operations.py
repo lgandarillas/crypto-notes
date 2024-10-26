@@ -1,5 +1,5 @@
 """
-src/note_manager.py
+src/note_operations.py
 
 This file contains the note manager for the program.
 """
@@ -8,7 +8,7 @@ import json
 import os
 import re
 
-class NoteManager:
+class NoteHandler:
 	"""Manages note-taking functionalities, including creating, reading, listing, and deleting notes."""
 
 	MODES = {
