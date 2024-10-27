@@ -34,8 +34,8 @@ def generate_rsa_keys(printer, password):
 
 def save_rsa_keys(printer, private_key, public_key, username):
 	"""Save the RSA keys to files."""
-	private_key_path = f"data/{username}_private_key.pem"
-	public_key_path = f"data/{username}_public_key.pem"
+	private_key_path = f"data/keys/{username}_private_key.pem"
+	public_key_path = f"data/keys/{username}_public_key.pem"
 
 	with open(private_key_path, 'wb') as priv_file:
 		priv_file.write(private_key)
