@@ -10,6 +10,8 @@ import json
 import base64
 from crypto_utils import CryptoUtils
 from cryptography.fernet import Fernet
+from rsa_utils import *
+from note_crypto_manager import *
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 class AccountManager:
@@ -76,6 +78,9 @@ class AccountManager:
 			'2fa_secret': secret
 		}
 		self.save_users()
+
+		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
+		save_rsa_keys(self.printer, rsa_private_key, rsa_public_key, username)
 
 		qr_code_image = get_qr_code(username, secret, self.printer)
 		qr_image_file = f"{username}_qrcode.png"
