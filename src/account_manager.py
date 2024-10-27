@@ -98,7 +98,7 @@ class AccountManager:
 
 		salt = base64.urlsafe_b64decode(user['salt'])
 		stored_token = user['token']
-		key = derive_key(password, salt)
+		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
 
 		try:
@@ -109,6 +109,9 @@ class AccountManager:
 				return False
 			self.printer.print_debug("[CRYPTO LOG] Decrypting token to verify login credentials; Fernet, 32 bytes")
 			self.printer.print_success(f"Login successful for user: {username}!")
+
+			note_handler = NoteHandler(self.printer, username)
+			note_handler.run(is_first_time_login=not os.path.exists(note_handler.notes_file))
 			return True
 		except Exception:
 			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")

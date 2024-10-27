@@ -70,7 +70,7 @@ class NoteHandler:
 
 		return True
 
-	def handle_new_note(self):
+	def shandle_new_note(self):
 		"""Handles the creation of a new note, including input validation and storage."""
 
 		self.printer.print_action("You selected new note mode")
@@ -144,20 +144,22 @@ class NoteHandler:
 		self.printer.print_error("Exiting notes manager")
 		return False
 
-	def run(self):
+	def run(self, is_first_time_login=False):
 		"""Runs the note management session, allowing the user to choose different note operations."""
-
-		while True:
-			try:
-				mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, "f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
-				if mode == "exit":
-					self.printer.print_error("Exiting notes manager")
+		if is_first_time_login:
+			self.handle_new_note()
+		else:
+			while True:
+				try:
+					mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
+					if mode == "exit":
+						self.printer.print_error("Exiting notes manager")
+						break
+					else:
+						self.handle_mode(mode)
+				except KeyboardInterrupt:
+					print("^C")
 					break
-				else:
-					self.handle_mode(mode)
-			except KeyboardInterrupt:
-				print("^C")
-				break
 
 	def handle_mode(self, mode):
 		"""Dispatches the action based on the mode chosen by the user."""
