@@ -10,8 +10,7 @@ import json
 import base64
 from crypto_utils import CryptoUtils
 from cryptography.fernet import Fernet
-from rsa_utils import *
-from note_crypto_manager import *
+from rsa_utils import generate_rsa_keys, save_rsa_keys
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
 
 class AccountManager:
