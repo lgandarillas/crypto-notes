@@ -42,7 +42,7 @@ class AccountManager:
 				key = self.crypto_utils.derive_key(self.encryption_key, salt)
 				decryptor = Fernet(key)
 				decrypted_data = decryptor.decrypt(encrypted_data)
-				self.printer.print_debug("[DEBUG] User data decrypted.")
+				self.printer.print_debug("[CRYPTO LOG] User data decrypted; Fernet, 32 bytes")
 				return json.loads(decrypted_data.decode())
 		except Exception as e:
 			self.printer.print_error(f"Failed to load users {e}")
@@ -51,8 +51,8 @@ class AccountManager:
 	def save_users(self):
 		key, salt = self.get_encryption_key()
 		f = Fernet(key)
-		self.printer.print_debug("[DEBUG] Encrypting and saving user data.")
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())
+		self.printer.print_debug("[CRYPTO LOG] User data encrypted for saving; Fernet, 32 bytes")
 		with open(self.database, 'wb') as file:
 			file.write(salt)
 			file.write(encrypted_data)
@@ -67,7 +67,7 @@ class AccountManager:
 		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
 		token = f.encrypt(password.encode())
-		self.printer.print_debug("[DEBUG] User data encrypted for registration.")
+		self.printer.print_debug("[CRYPTO LOG] User password encrypted for registration; Fernet, 32 bytes")
 		secret = generate_2fa_secret()
 
 		self.users[username] = {
@@ -98,12 +98,12 @@ class AccountManager:
 		f = Fernet(key)
 
 		try:
-			self.printer.print_debug("[DEBUG] Decrypting token to verify login credentials.")
 			f.decrypt(stored_token.encode())
 			totp = pyotp.TOTP(user['2fa_secret'])
 			if not totp.verify(otp_input):
 				self.printer.print_error("Login failed: Invalid 2FA code.")
 				return False
+			self.printer.print_debug("[CRYPTO LOG] Decrypting token to verify login credentials; Fernet, 32 bytes")
 			self.printer.print_success(f"Login successful for user: {username}!")
 			return True
 		except Exception:

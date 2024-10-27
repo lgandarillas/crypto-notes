@@ -16,7 +16,7 @@ class CryptoUtils:
 
 	def generate_salt(self):
 		"""Generate a random salt using os.urandom."""
-		self.printer.print_debug("[DEBUG] Generating a random salt.")
+		self.printer.print_debug("[CRYPTO LOG] Salt generated; os.urandom, 16 bytes")
 		return os.urandom(16)
 
 	def derive_key(self, password, salt):
@@ -27,5 +27,5 @@ class CryptoUtils:
 			salt=salt,
 			iterations=480000
 		)
-		self.printer.print_debug("[DEBUG] Deriving a secure key from password and salt using PBKDF2.")
+		self.printer.print_debug("[CRYPTO LOG] Key derived; PBKDF2-HMAC-SHA256, 32 bytes")
 		return base64.urlsafe_b64encode(kdf.derive(password.encode()))
