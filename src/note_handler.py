@@ -1,5 +1,5 @@
 """
-src/note_operations.py
+src/note_handler.py
 
 This file contains the note manager for the program.
 """
@@ -22,7 +22,8 @@ class NoteHandler:
 	def __init__(self, printer, username):
 		self.printer = printer
 		self.username = username
-		self.notes_file = f"data/notes_{username}.json"
+		self.notes_dir = "data/notes"
+		self.notes_file = f"{self.notes_dir}/notes_{username}.json"
 		self.notes = self.load_notes()
 		self.note_handlers = {
 			self.MODES["new"]: self.handle_new_note,
@@ -34,6 +35,9 @@ class NoteHandler:
 
 	def load_notes(self):
 		"""Loads notes from a file associated with the user."""
+		if not os.path.exists(self.notes_dir):
+			os.makedirs(self.notes_dir)
+
 		if os.path.exists(self.notes_file):
 			with open(self.notes_file, 'rb') as file:
 				try:
@@ -46,6 +50,10 @@ class NoteHandler:
 
 	def save_notes(self, notes):
 		"""Saves the current list of notes to the user's file."""
+		# Ensure the directory exists
+		if not os.path.exists(self.notes_dir):
+			os.makedirs(self.notes_dir)
+
 		with open(self.notes_file, 'w') as file:
 			json.dump(notes, file, indent=4)
 

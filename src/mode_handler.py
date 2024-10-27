@@ -14,7 +14,7 @@ import pwinput
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
 from crypto_utils import CryptoUtils
-from note_operations import NoteHandler
+from note_handler import NoteHandler
 
 class ModeHandler:
 	"""Handles different operating modes of the application such as register, login, and exit."""
@@ -107,8 +107,8 @@ class ModeHandler:
 		self.printer.show_progress_bar("Processing login...")
 		self.printer.print_success(f"User {username} logged in successfully!")
 
-		note_operations = NoteHandler(self.printer, username)
-		note_operations.run()
+		note_handler = NoteHandler(self.printer, username)
+		note_handler.run()
 
 		return True
 
