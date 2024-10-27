@@ -88,31 +88,3 @@ class AccountManager:
 
 		open_qr_in_default_viewer(qr_image_file, self.printer)
 		return True
-
-	def login(self, username, password, otp_input):
-		"""Attempts to log in a user with the given username, password, and 2FA code."""
-		user = self.users.get(username)
-		if not user:
-			self.printer.print_error(f"Login failed: Username '{username}' not found.")
-			return False
-
-		salt = base64.urlsafe_b64decode(user['salt'])
-		stored_token = user['token']
-		key = self.crypto_utils.derive_key(password, salt)
-		f = Fernet(key)
-
-		try:
-			f.decrypt(stored_token.encode())
-			totp = pyotp.TOTP(user['2fa_secret'])
-			if not totp.verify(otp_input):
-				self.printer.print_error("Login failed: Invalid 2FA code.")
-				return False
-			self.printer.print_debug("[CRYPTO LOG] Decrypting token to verify login credentials; Fernet, 32 bytes")
-			self.printer.print_success(f"Login successful for user: {username}!")
-
-			note_handler = NoteHandler(self.printer, username)
-			note_handler.run(is_first_time_login=not os.path.exists(note_handler.notes_file))
-			return True
-		except Exception:
-			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
-			return False

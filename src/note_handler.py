@@ -22,6 +22,8 @@ class NoteHandler:
 	def __init__(self, printer, username):
 		self.printer = printer
 		self.username = username
+		# self.rsa_private_key = rsa_private_key
+		# self.rsa_public_key = rsa_public_key
 		self.notes_dir = "data/notes"
 		self.notes_file = f"{self.notes_dir}/notes_{username}.json"
 		self.notes = self.load_notes()
@@ -70,7 +72,7 @@ class NoteHandler:
 
 		return True
 
-	def 	handle_new_note(self):
+	def handle_new_note(self):
 		"""Handles the creation of a new note, including input validation and storage."""
 
 		self.printer.print_action("You selected new note mode")
