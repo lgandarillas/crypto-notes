@@ -108,9 +108,16 @@ class ModeHandler:
 		self.printer.show_progress_bar("Processing login...")
 		self.printer.print_success(f"User {username} logged in successfully!")
 
-		# Generate RSA keys for the user
-		private_key, public_key = generate_rsa_keys(self.printer, password)
-		save_rsa_keys(self.printer, private_key, public_key, username)
+		# Check if the user has RSA keys
+		private_key_file = f"{username}_private_key.pem"
+		public_key_file = f"{username}_public_key.pem"
+
+		if os.path.exists(private_key_file) and os.path.exists(public_key_file):
+			private_key, public_key = self.crypto_utils.load_rsa_keys(username)
+		else:
+			# Generate RSA keys for the user
+			private_key, public_key = generate_rsa_keys(self.printer, password)
+			save_rsa_keys(self.printer, private_key, public_key, username)
 
 		note_handler = NoteHandler(self.printer, username, private_key, public_key)
 		note_handler.run()
