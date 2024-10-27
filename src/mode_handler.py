@@ -11,10 +11,11 @@ import base64
 import pyotp
 import getpass
 import pwinput
-from cryptography.fernet import Fernet
-from account_manager import AccountManager
 from crypto_utils import CryptoUtils
 from note_handler import NoteHandler
+from cryptography.fernet import Fernet
+from account_manager import AccountManager
+from rsa_utils import generate_rsa_keys, save_rsa_keys
 
 class ModeHandler:
 	"""Handles different operating modes of the application such as register, login, and exit."""
@@ -107,7 +108,11 @@ class ModeHandler:
 		self.printer.show_progress_bar("Processing login...")
 		self.printer.print_success(f"User {username} logged in successfully!")
 
-		note_handler = NoteHandler(self.printer, username)
+		# Generate RSA keys for the user
+		private_key, public_key = generate_rsa_keys(self.printer, password)
+		save_rsa_keys(self.printer, private_key, public_key, username)
+
+		note_handler = NoteHandler(self.printer, username, private_key, public_key)
 		note_handler.run()
 
 		return True
