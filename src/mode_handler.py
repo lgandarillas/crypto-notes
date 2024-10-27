@@ -100,7 +100,7 @@ class ModeHandler:
 		if not self.verify_password(user, password, self.printer, username, self.crypto_utils):
 			return True
 
-		otp_input = input("	Ener your 2FA code from Google account_manager: ").strip()
+		otp_input = pwinput.pwinput("	Ener your 2FA code from Google account_manager: ", mask='*').strip()
 		if not self.verify_2fa(user, otp_input, self.printer):
 			return True
 

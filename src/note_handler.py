@@ -70,7 +70,7 @@ class NoteHandler:
 
 		return True
 
-	def shandle_new_note(self):
+	def 	handle_new_note(self):
 		"""Handles the creation of a new note, including input validation and storage."""
 
 		self.printer.print_action("You selected new note mode")
