@@ -4,18 +4,19 @@ src/mode_handler.py
 This file contains the mode handler for the program.
 """
 
-import readline
 import os
 import re
-import base64
 import pyotp
+import base64
 import getpass
 import pwinput
+import readline
 from crypto_utils import CryptoUtils
 from note_handler import NoteHandler
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
 from rsa_utils import generate_rsa_keys, save_rsa_keys
+from cryptography.hazmat.primitives import serialization
 
 class ModeHandler:
 	"""Handles different operating modes of the application such as register, login, and exit."""
@@ -108,18 +109,30 @@ class ModeHandler:
 		self.printer.show_progress_bar("Processing login...")
 		self.printer.print_success(f"User {username} logged in successfully!")
 
-		# Check if the user has RSA keys
-		private_key_file = f"{username}_private_key.pem"
-		public_key_file = f"{username}_public_key.pem"
-
 		if "rsa_private_key" in user and "rsa_public_key" in user:
-			private_key = base64.b64decode(user["rsa_private_key"])
-			public_key = base64.b64decode(user["rsa_public_key"])
+			private_key = serialization.load_pem_private_key(
+				base64.b64decode(user["rsa_private_key"]),
+				password=password.encode(),  # Usar la contraseña del login
+			)
+			public_key = serialization.load_pem_public_key(
+				base64.b64decode(user["rsa_public_key"])
+			)
 		else:
 			private_key, public_key = generate_rsa_keys(self.printer, password)
 			save_rsa_keys(self.printer, None, public_key, username)
-			user["rsa_private_key"] = base64.b64encode(private_key).decode('utf-8')
-			user["rsa_public_key"] = base64.b64encode(public_key).decode('utf-8')
+			user["rsa_private_key"] = base64.b64encode(
+				private_key.private_bytes(
+					encoding=serialization.Encoding.PEM,
+					format=serialization.PrivateFormat.PKCS8,
+					encryption_algorithm=serialization.BestAvailableEncryption(password.encode())
+				)
+			).decode('utf-8')
+			user["rsa_public_key"] = base64.b64encode(
+				public_key.public_bytes(
+					encoding=serialization.Encoding.PEM,
+					format=serialization.PublicFormat.SubjectPublicKeyInfo
+				)
+			).decode('utf-8')
 			self.account_manager.save_users()
 
 		note_handler = NoteHandler(self.printer, username, private_key, public_key)

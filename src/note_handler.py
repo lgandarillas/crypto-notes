@@ -4,9 +4,11 @@ src/note_handler.py
 This file contains the note manager for the program.
 """
 
-import json
 import os
 import re
+import json
+from note_crypto_utils import encrypt_notes_data, encrypt_session_key, generate_session_key, decrypt_session_key, decrypt_notes_data
+
 
 class NoteHandler:
 	"""Manages note-taking functionalities, including creating, reading, listing, and deleting notes."""
@@ -26,6 +28,8 @@ class NoteHandler:
 		self.rsa_public_key = rsa_public_key
 		self.notes_dir = "data/notes"
 		self.notes_file = f"{self.notes_dir}/notes_{username}.json"
+		self.session_key = None
+		self.encrypted_session_key = None
 		self.notes = self.load_notes()
 		self.note_handlers = {
 			self.MODES["new"]: self.handle_new_note,
@@ -40,24 +44,42 @@ class NoteHandler:
 		if not os.path.exists(self.notes_dir):
 			os.makedirs(self.notes_dir)
 
-		if os.path.exists(self.notes_file):
-			with open(self.notes_file, 'rb') as file:
-				try:
-					return json.load(file)
-				except json.JSONDecodeError:
-					return []
-		else:
-			self.save_notes([])
+		if not os.path.exists(self.notes_file):
 			return []
+
+		with open(self.notes_file, 'rb') as file:
+			encrypted_data = json.load(file)
+			self.encrypted_session_key = bytes.fromhex(encrypted_data["encrypted_session_key"])
+			nonce = bytes.fromhex(encrypted_data["nonce"])
+			ciphertext = bytes.fromhex(encrypted_data["ciphertext"])
+			aad = bytes.fromhex(encrypted_data["aad"])
+			self.session_key = decrypt_session_key(self.rsa_private_key, self.encrypted_session_key)
+			return decrypt_notes_data(nonce, self.session_key, aad, ciphertext)
+
 
 	def save_notes(self, notes):
 		"""Saves the current list of notes to the user's file."""
-		# Ensure the directory exists
-		if not os.path.exists(self.notes_dir):
-			os.makedirs(self.notes_dir)
+		if self.notes:
+			if not self.session_key:
+				self.session_key = generate_session_key()
 
-		with open(self.notes_file, 'w') as file:
-			json.dump(notes, file, indent=4)
+			nonce, ciphertext, aad = encrypt_notes_data(self.notes, self.session_key)
+			self.encrypted_session_key = encrypt_session_key(self.rsa_public_key, self.session_key)
+
+			encrypted_data = {
+				"nonce": nonce.hex(),
+				"encrypted_session_key": self.encrypted_session_key.hex(),
+				"aad": aad.hex(),
+				"ciphertext": ciphertext.hex()
+			}
+			with open(self.notes_file, 'w') as file:
+				json.dump(encrypted_data, file, indent=4)
+
+	def handle_exit(self):
+		"""Handles the exit process from the note manager."""
+		self.save_notes()
+		self.printer.print_error("Exiting notes manager")
+		return False
 
 	@staticmethod
 	def validate_note_name(note_name, notes, printer):
@@ -102,6 +124,7 @@ class NoteHandler:
 
 	def handle_read_note(self):
 		"""Handles reading a note by name, displaying its content if found."""
+# note_crypto_utils.py
 
 		self.printer.print_action("You selected read note mode")
 
