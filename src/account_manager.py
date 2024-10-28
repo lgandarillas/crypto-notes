@@ -68,6 +68,14 @@ class AccountManager:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
 
+		self._initialize_user(username, password)
+		self._generate_and_store_rsa_keys(username, password)
+		self._setup_two_factor_auth(username)
+
+		return True
+
+	def _initialize_user(self, username, password):
+		"""Initializes a new user by generating a salt, deriving a key, and encrypting the password."""
 		salt = self.crypto_utils.generate_salt()
 		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
@@ -82,6 +90,8 @@ class AccountManager:
 		}
 		self.save_users()
 
+	def _generate_and_store_rsa_keys(self, username, password):
+		"""Generates and stores RSA keys for the user."""
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
 		save_rsa_keys(self.printer, None, rsa_public_key, username)
 		self.users[username].update({
@@ -90,10 +100,11 @@ class AccountManager:
 		})
 		self.save_users()
 
+	def _setup_two_factor_auth(self, username):
+		"""Sets up 2FA by generating a QR code and displaying it."""
+		secret = self.users[username]['2fa_secret']
 		qr_code_image = get_qr_code(username, secret, self.printer)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
-
 		open_qr_in_default_viewer(qr_image_file, self.printer)
-		return True
