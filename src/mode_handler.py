@@ -112,12 +112,15 @@ class ModeHandler:
 		private_key_file = f"{username}_private_key.pem"
 		public_key_file = f"{username}_public_key.pem"
 
-		if os.path.exists(private_key_file) and os.path.exists(public_key_file):
-			private_key, public_key = self.crypto_utils.load_rsa_keys(username)
+		if "rsa_private_key" in user and "rsa_public_key" in user:
+			private_key = base64.b64decode(user["rsa_private_key"])
+			public_key = base64.b64decode(user["rsa_public_key"])
 		else:
-			# Generate RSA keys for the user
 			private_key, public_key = generate_rsa_keys(self.printer, password)
-			save_rsa_keys(self.printer, private_key, public_key, username)
+			save_rsa_keys(self.printer, None, public_key, username)
+			user["rsa_private_key"] = base64.b64encode(private_key).decode('utf-8')
+			user["rsa_public_key"] = base64.b64encode(public_key).decode('utf-8')
+			self.account_manager.save_users()
 
 		note_handler = NoteHandler(self.printer, username, private_key, public_key)
 		note_handler.run()

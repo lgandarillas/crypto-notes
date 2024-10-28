@@ -79,7 +79,12 @@ class AccountManager:
 		self.save_users()
 
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
-		save_rsa_keys(self.printer, rsa_private_key, rsa_public_key, username)
+		save_rsa_keys(self.printer, None, rsa_public_key, username)
+		self.users[username].update({
+			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
+			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
+		})
+		self.save_users()
 
 		qr_code_image = get_qr_code(username, secret, self.printer)
 		qr_image_file = f"{username}_qrcode.png"
