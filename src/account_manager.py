@@ -3,6 +3,7 @@ src/account_manager.py
 
 Handles the management of user accounts, including registration and login processes,
 leveraging cryptographic utilities for secure password handling and user data encryption.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
@@ -24,10 +25,12 @@ class AccountManager:
 		self.users = self.load_users()
 
 	def get_encryption_key(self):
+		"""Derive a secure key and salt for encrypting user data."""
 		salt = os.urandom(16)
 		return self.crypto_utils.derive_key(self.encryption_key, salt), salt
 
 	def load_users(self):
+		"""Load user data from the encrypted database file."""
 		if not os.path.exists(self.database):
 			with open(self.database, 'wb') as file:
 				file.write(b"")
@@ -50,6 +53,7 @@ class AccountManager:
 			return {}
 
 	def save_users(self):
+		"""Encrypt and save user data to the database file."""
 		key, salt = self.get_encryption_key()
 		f = Fernet(key)
 		encrypted_data = f.encrypt(json.dumps(self.users).encode())

@@ -2,6 +2,7 @@
 src/mode_handler.py
 
 This file contains the mode handler for the program.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os

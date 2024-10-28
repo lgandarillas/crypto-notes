@@ -2,6 +2,7 @@
 src/note_handler.py
 
 This file contains the note manager for the program.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
@@ -124,7 +125,6 @@ class NoteHandler:
 
 	def handle_read_note(self):
 		"""Handles reading a note by name, displaying its content if found."""
-# note_crypto_utils.py
 
 		self.printer.print_action("You selected read note mode")
 

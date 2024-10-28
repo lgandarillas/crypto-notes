@@ -2,6 +2,7 @@
 src/print_manager.py
 
 This file contains the print functions for the program.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import sys

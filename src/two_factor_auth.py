@@ -2,6 +2,7 @@
 src/two_factor_auth.py
 
 This module provides utility functions for two-factor authentication.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import pyotp

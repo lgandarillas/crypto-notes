@@ -2,6 +2,7 @@
 src/rsa_utils.py
 
 This module contains utility functions for RSA encryption and decryption.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
@@ -33,6 +34,7 @@ def generate_rsa_keys(printer, password):
 	return pem_private, pem_public
 
 def save_rsa_keys(printer, private_key, public_key, username):
+	"""Saves the RSA public key to a file."""
 	keys_dir = f"data/keys"
 	public_key_path = f"{keys_dir}/{username}_public_key.pem"
 	if not os.path.exists(keys_dir):

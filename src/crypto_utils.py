@@ -3,6 +3,7 @@ src/crypto_utils.py
 
 Module providing utility functions related to cryptographic operations such as
 salt generation and key derivation using PBKDF2.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
