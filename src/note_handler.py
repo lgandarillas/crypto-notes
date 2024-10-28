@@ -43,20 +43,25 @@ class NoteHandler:
 
 	def load_notes(self):
 		"""Loads notes from a file associated with the user."""
+		printer = PrintManager()
 		if not os.path.exists(self.notes_dir):
 			os.makedirs(self.notes_dir)
 
 		if not os.path.exists(self.notes_file):
 			return []
 
-		with open(self.notes_file, 'rb') as file:
-			encrypted_data = json.load(file)
-			self.encrypted_session_key = bytes.fromhex(encrypted_data["encrypted_session_key"])
-			nonce = bytes.fromhex(encrypted_data["nonce"])
-			ciphertext = bytes.fromhex(encrypted_data["ciphertext"])
-			aad = bytes.fromhex(encrypted_data["aad"])
-			self.session_key = decrypt_session_key(self.rsa_private_key, self.encrypted_session_key)
-			return decrypt_notes_data(nonce, self.session_key, aad, ciphertext)
+		try:
+			with open(self.notes_file, 'rb') as file:
+				encrypted_data = json.load(file)
+				self.encrypted_session_key = bytes.fromhex(encrypted_data["encrypted_session_key"])
+				nonce = bytes.fromhex(encrypted_data["nonce"])
+				ciphertext = bytes.fromhex(encrypted_data["ciphertext"])
+				aad = bytes.fromhex(encrypted_data["aad"])
+				self.session_key = decrypt_session_key(self.rsa_private_key, self.encrypted_session_key)
+				return decrypt_notes_data(nonce, self.session_key, aad, ciphertext)
+		except ValueError as e:
+			printer.print_error("[SECURITY ALERT] Possible data tampering detected. Exiting program.")
+			exit(1)
 
 
 	def save_notes(self, notes):
