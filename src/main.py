@@ -18,7 +18,7 @@ def main():
 
 	while True:
 		try:
-			mode = input(f"Select a mode ({printer.COLOR_BLUE}register{printer.COLOR_RESET}, {printer.COLOR_BLUE}login{printer.COLOR_RESET}, {printer.COLOR_BLUE}exit{printer.COLOR_RESET}): ").strip().lower()
+			mode = input(f"\nSelect a mode ({printer.COLOR_BLUE}register{printer.COLOR_RESET}, {printer.COLOR_BLUE}login{printer.COLOR_RESET}, {printer.COLOR_BLUE}exit{printer.COLOR_RESET}): ").strip().lower()
 			if not mode_handler.handle_mode(mode):
 				break
 		except KeyboardInterrupt:

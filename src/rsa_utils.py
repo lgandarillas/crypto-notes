@@ -48,4 +48,4 @@ def save_rsa_keys(printer, private_key, public_key, username):
 	with open(public_key_path, 'wb') as pub_file:
 		pub_file.write(public_key)
 
-	printer.print_debug("[CRYPTO LOG] RSA public key saved; File, n/a")
+	printer.print_debug(f"[CRYPTO LOG] RSA public key saved to {keys_dir}/{username}_public_key.pem")

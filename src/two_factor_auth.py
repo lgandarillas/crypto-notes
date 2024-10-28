@@ -21,7 +21,7 @@ def get_qr_code(username, secret, printer):
 	qr = qrcode.make(otp_uri)
 	buffer = io.BytesIO()
 	qr.save(buffer, "PNG")
-	printer.print_debug("[CRYPTO LOG] QR code generated for 2FA; QR Code, n/a")
+	printer.print_debug("[CRYPTO LOG] QR code generated for 2FA")
 	return buffer.getvalue()
 
 def open_qr_in_default_viewer(qr_image_file, printer):

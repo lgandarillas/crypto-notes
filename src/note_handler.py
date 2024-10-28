@@ -8,6 +8,7 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import re
 import json
+from print_manager import PrintManager
 from note_crypto_utils import encrypt_notes_data, encrypt_session_key, generate_session_key, decrypt_session_key, decrypt_notes_data
 
 
@@ -60,12 +61,18 @@ class NoteHandler:
 
 	def save_notes(self, notes):
 		"""Saves the current list of notes to the user's file."""
+		printer = PrintManager()
+
 		if self.notes:
 			if not self.session_key:
 				self.session_key = generate_session_key()
+				self.printer.print_debug("[CRYPTO LOG] Session key generated; ChaCha20Poly1305, 256 bits")
 
 			nonce, ciphertext, aad = encrypt_notes_data(self.notes, self.session_key)
+			self.printer.print_debug("[CRYPTO LOG] Notes data encrypted; ChaCha20Poly1305 with nonce, AAD for integrity")
+
 			self.encrypted_session_key = encrypt_session_key(self.rsa_public_key, self.session_key)
+			self.printer.print_debug("[CRYPTO LOG] Session key encrypted with RSA public key; RSA, 2048 bits")
 
 			encrypted_data = {
 				"nonce": nonce.hex(),
@@ -75,11 +82,12 @@ class NoteHandler:
 			}
 			with open(self.notes_file, 'w') as file:
 				json.dump(encrypted_data, file, indent=4)
+				self.printer.print_debug("[CRYPTO LOG] Encrypted notes data saved to file; JSON format")
 
 	def handle_exit(self):
 		"""Handles the exit process from the note manager."""
 		self.save_notes()
-		self.printer.print_error("Exiting notes manager")
+		self.printer.print_action("Exiting notes manager")
 		return False
 
 	@staticmethod
@@ -166,7 +174,7 @@ class NoteHandler:
 
 	def handle_exit(self):
 		"""Handles the exit process from the note manager."""
-		self.printer.print_error("Exiting notes manager")
+		self.printer.print_action("Exiting notes manager")
 		return False
 
 	def run(self, is_first_time_login=False):
@@ -176,9 +184,9 @@ class NoteHandler:
 		else:
 			while True:
 				try:
-					mode = input(f"Select a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
+					mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
 					if mode == "exit":
-						self.printer.print_error("Exiting notes manager")
+						self.printer.print_action("Exiting notes manager")
 						break
 					else:
 						self.handle_mode(mode)
