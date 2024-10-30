@@ -1,16 +1,16 @@
 """
-src/user_access_handler.py
+src/handle_user/user_access_handler.py
 
 Handles user access modes such as register, login, and exit.
 By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
-import re
 import pyotp
 import base64
 import pwinput
 import readline
+from handle_user.register_handler import UserHandler
 from crypto_utils import CryptoUtils
 from print_manager import PrintManager
 from note_handler import NoteHandler
@@ -41,13 +41,19 @@ class UserAccessHandler:
 		"""Handle the selected mode by the user (register, login, or exit)."""
 		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
 		if mode == "register":
-			return self.handle_register()
+			return self._handle_register()
 		elif mode == "login":
 			return self.handle_login()
 		elif mode == "exit":
 			return self._handle_exit()
 		else:
 			return self._handle_invalid_mode(mode)
+
+	def _handle_register(self):
+		"""Handles user registration process."""
+		self.printer.print_action("You selected register mode")
+		register_handler = UserHandler(self.account_manager)
+		register_handler.handle_register()
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
@@ -63,67 +69,6 @@ class UserAccessHandler:
 		"""Handle invalid modes, informing the user of the error."""
 		print(f"Invalid mode: {self.printer.COLOR_RED}{mode}{self.printer.COLOR_RESET}\n")
 		return True
-
-######################################################
-
-# Handle register
-
-	def handle_register(self):
-		"""Handles user registration process."""
-		self.printer.print_action("You selected register mode")
-
-		username = self._get_username()
-		if username is None:
-			return True
-		password = self._get_password()
-		if password is None:
-			return True
-		if self.account_manager.register(username, password):
-			self.printer.print_success(f"User {username} registered successfully!")
-		else:
-			self.printer.print_error(f"Registration failed for user {username}.")
-
-		return True
-
-	def _get_username(self):
-		"""Prompts the user to enter a username, handling interruption."""
-		try:
-			return input("    Enter your username: ").strip()
-		except KeyboardInterrupt:
-			self.printer.print_error("\nRegistration cancelled.")
-			return None
-
-	def _get_password(self):
-		"""Prompts the user to enter a password with validation, handling interruption."""
-		while True:
-			try:
-				password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
-			except KeyboardInterrupt:
-				self.printer.print_error("\nRegistration cancelled.")
-				return None
-
-			failed_requirements = self._validate_register_password(password)
-			if not failed_requirements:
-				return password
-			else:
-				self.printer.print_error("Password must have: " + ", ".join(failed_requirements))
-
-	def _validate_register_password(self, password):
-		"""Validate the password requirements."""
-		password_requirements = {
-			r".{8,}": "at least 8 characters",
-			r"[A-Z]": "at least one uppercase letter",
-			r"[a-z]": "at least one lowercase letter",
-			r"\d": "at least one digit",
-			r"[!@#$%^&*()\-_=+\[\]{}|;:'\",.<>/?`~]": "at least one special character"
-		}
-
-		failed_requirements = []
-		for regex, message in password_requirements.items():
-			if not re.search(regex, password):
-				failed_requirements.append(message)
-
-		return failed_requirements
 
 ######################################################
 
