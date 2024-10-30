@@ -16,7 +16,7 @@ def main():
 			user_access_handler.handle_mode()
 		except KeyboardInterrupt:
 			print("^C")
-			user_access_handler.handle_exit()
+			user_access_handler._handle_exit()
 
 if __name__ == "__main__":
 	main()

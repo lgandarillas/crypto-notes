@@ -47,16 +47,12 @@ class UserAccessHandler:
 		elif mode == "login":
 			return self.handle_login()
 		elif mode == "exit":
-			return self.handle_exit()
+			return self._handle_exit()
 		else:
 			return self._handle_invalid_mode(mode)
 
-	def _handle_invalid_mode(self, mode: str):
-		"""Handle invalid modes, informing the user of the error."""
-		print(f"Invalid mode: {self.printer.COLOR_RED}{mode}{self.printer.COLOR_RESET}\n")
-		return True
 
-	def handle_exit(self):
+	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
 		for user in self.account_manager.users:
 			qr_image_file = f"{user}_qrcode.png"
@@ -66,7 +62,14 @@ class UserAccessHandler:
 		self.printer.print_exit_msg()
 		exit(0)
 
+	def _handle_invalid_mode(self, mode: str):
+		"""Handle invalid modes, informing the user of the error."""
+		print(f"Invalid mode: {self.printer.COLOR_RED}{mode}{self.printer.COLOR_RESET}\n")
+		return True
+
 ######################################################
+
+# Handle register
 
 	def handle_register(self):
 		"""Handles user registration process."""
@@ -106,6 +109,32 @@ class UserAccessHandler:
 
 		return failed_requirements
 
+######################################################
+
+	def handle_login(self):
+		"""Handle the login process for an existing user."""
+		self.printer.print_action("You selected login mode")
+
+		username = input("	Enter your username: ").strip()
+		if not self._validate_user(username):
+			return True
+
+		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
+		if not self._validate_password(username, password):
+			return True
+
+		otp_input = pwinput.pwinput("	Enter your 2FA code from Google Authenticator: ", mask='*').strip()
+		if not self._validate_2fa(username, otp_input):
+			return True
+
+		self.printer.show_progress_bar("Processing login...")
+		self.printer.print_success(f"User {username} logged in successfully!")
+
+		private_key, public_key = self._get_rsa_keys(username, password)
+		self._launch_note_handler(username, private_key, public_key)
+
+		return True
+
 	@staticmethod
 	def verify_user(username, account_manager, printer):
 		"""Verify the user exists."""
@@ -136,29 +165,7 @@ class UserAccessHandler:
 			return False
 		return True
 
-	def handle_login(self):
-		"""Handle the login process for an existing user."""
-		self.printer.print_action("You selected login mode")
-
-		username = input("	Enter your username: ").strip()
-		if not self._validate_user(username):
-			return True
-
-		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
-		if not self._validate_password(username, password):
-			return True
-
-		otp_input = pwinput.pwinput("	Enter your 2FA code from Google Authenticator: ", mask='*').strip()
-		if not self._validate_2fa(username, otp_input):
-			return True
-
-		self.printer.show_progress_bar("Processing login...")
-		self.printer.print_success(f"User {username} logged in successfully!")
-
-		private_key, public_key = self._get_rsa_keys(username, password)
-		self._launch_note_handler(username, private_key, public_key)
-
-		return True
+######################################################
 
 	def _validate_user(self, username):
 		"""Validates if the user exists in the account manager."""
