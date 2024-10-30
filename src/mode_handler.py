@@ -61,8 +61,9 @@ class ModeHandler:
 		self.printer.print_exit_msg()
 		return False
 
-	def handle_mode(self, mode: str) -> bool:
+	def handle_mode(self) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""
+		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
 		handler = self.mode_handlers.get(mode, lambda: self.handle_invalid_mode(mode))
 		return handler()
 
