@@ -6,7 +6,7 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import pwinput
-from user_access_handler import UserAccessHandler
+from handle_user.user_access_handler import UserAccessHandler
 
 def main():
 	user_access_handler = UserAccessHandler()
