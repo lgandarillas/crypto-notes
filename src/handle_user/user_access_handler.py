@@ -96,51 +96,44 @@ class UserAccessHandler:
 
 		return True
 
-	@staticmethod
-	def verify_user(username, account_manager, printer):
-		"""Verify the user exists."""
-		if username not in account_manager.users:
+######################################################
+
+	def _validate_user(self, username):
+		"""Validates if the user exists in the account manager."""
+		if username not in self.account_manager.users:
 			printer.print_error(f"Login failed: Username '{username}' not found.")
 			return False
 		return True
 
-	@staticmethod
-	def verify_password(user, password, printer, username, crypto_utils):
-		"""Verify if the provided password matches the stored token."""
+	def _validate_password(self, username, password):
+		"""Validates the user's password."""
+		user = self.account_manager.users.get(username)
+		if user is None:
+			self.printer.print_error(f"Login failed: Username '{username}' not found.")
+			return False
+
 		salt = base64.urlsafe_b64decode(user['salt'])
-		key = crypto_utils.derive_key(password, salt)
+		key = self.crypto_utils.derive_key(password, salt)
 		f = Fernet(key)
 		try:
 			f.decrypt(user['token'].encode())
 			return True
 		except Exception:
-			printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
+			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
 			return False
-
-	@staticmethod
-	def verify_2fa(user, otp_input, printer):
-		"""Verify the 2FA code using the user's secret."""
-		totp = pyotp.TOTP(user['2fa_secret'])
-		if not totp.verify(otp_input):
-			printer.print_error("Login failed: Invalid 2FA code.")
-			return False
-		return True
-
-######################################################
-
-	def _validate_user(self, username):
-		"""Validates if the user exists in the account manager."""
-		return self.verify_user(username, self.account_manager, self.printer)
-
-	def _validate_password(self, username, password):
-		"""Validates the user's password."""
-		user = self.account_manager.users.get(username)
-		return self.verify_password(user, password, self.printer, username, self.crypto_utils)
 
 	def _validate_2fa(self, username, otp_input):
 		"""Validates the 2FA code provided by the user."""
 		user = self.account_manager.users.get(username)
-		return self.verify_2fa(user, otp_input, self.printer)
+		if user is None:
+			self.printer.print_error(f"Login failed: Username '{username}' not found.")
+			return False
+
+		totp = pyotp.TOTP(user['2fa_secret'])
+		if not totp.verify(otp_input):
+			self.printer.print_error("Login failed: Invalid 2FA code.")
+			return False
+		return True
 
 	def _get_rsa_keys(self, username, password):
 		"""Retrieves or generates RSA keys for the user."""
