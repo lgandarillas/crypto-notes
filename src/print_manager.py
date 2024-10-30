@@ -10,6 +10,8 @@ from time import sleep
 from progress.bar import Bar
 
 class PrintManager:
+	"""Class to manage the printing of messages and progress bars."""
+
 	COLOR_RED = "\033[91m"
 	COLOR_GREEN = "\033[92m"
 	COLOR_BLUE = "\033[94m"
@@ -65,7 +67,7 @@ class PrintManager:
 
 	def show_progress_bar(self, task_description="Processing... ", duration=2.0):
 		"""Show a progress bar with a given task description and duration."""
-		with Bar(task_description, max=100) as bar:
+		with Bar(task_description, max=100, color='green') as bar:
 			for i in range(100):
 				sleep(duration / 100)
 				bar.next()
