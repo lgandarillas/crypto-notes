@@ -9,14 +9,14 @@ import pwinput
 from user_access_handler import UserAccessHandler
 
 def main():
-	mode_handler = UserAccessHandler("server_encryptation_key")
+	user_access_handler = UserAccessHandler("server_encryptation_key")
 
 	while True:
 		try:
-			mode_handler.handle_mode()
+			user_access_handler.handle_mode()
 		except KeyboardInterrupt:
 			print("^C")
-			mode_handler.handle_exit()
+			user_access_handler.handle_exit()
 
 if __name__ == "__main__":
 	main()
