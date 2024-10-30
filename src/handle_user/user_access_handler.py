@@ -29,8 +29,7 @@ class UserAccessHandler:
 		self.printer.print_welcome_msg()
 
 		# SIN REVISAR
-		self.encryption_key = "server_encryptation_key"
-		self.account_manager = AccountManager(self.encryption_key)
+		self.account_manager = AccountManager()
 		self.crypto_utils = CryptoUtils()
 
 	def _setup_readline_history(self):

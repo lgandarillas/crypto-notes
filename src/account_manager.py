@@ -18,9 +18,9 @@ from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 class AccountManager:
 	"""Manages user accounts, including registration, login, and data encryption."""
 
-	def __init__(self, encryption_key, database='data/users.json'):
+	def __init__(self, database='data/users.json'):
 		self.printer = PrintManager()
-		self.encryption_key = encryption_key
+		self.encryption_key = "server_encryptation_key"
 		self.database = database
 		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
