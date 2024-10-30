@@ -39,6 +39,7 @@ class ModeHandler:
 		}
 		self.crypto_utils = CryptoUtils(printer)
 
+	# OK
 	def setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
 		for cmd in self.MODES.values():
@@ -52,37 +53,40 @@ class ModeHandler:
 	def handle_register(self):
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
-		username = input("	Enter a new username: ").strip()
+		username = input("	Enter your username: ").strip()
 
-		# Bucle para validar los requisitos de la contraseña
 		while True:
 			password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
-			
-			# Definir los requisitos de la contraseña
-			requirements = [
-				(r".{8,}", "at least 8 characters"),
-				(r"[A-Z]", "at least one uppercase letter"),
-				(r"[a-z]", "at least one lowercase letter"),
-				(r"\d", "at least one digit"),
-				(r"[!@#$%^&*(),.?\":{}|<>]", "at least one special character")
-			]
-			
-			# Verificar cada requisito
-			failed_requirements = [msg for regex, msg in requirements if not re.search(regex, password)]
-			
+			failed_requirements = self._validate_register_password(password)
 			if not failed_requirements:
-				break  # Todos los requisitos cumplen, salir del bucle
+				break
 			else:
-				# Mostrar los requisitos que faltan
-				self.printer.print_error(f"Password must have: {', '.join(failed_requirements)}")
-		
-		# Registro del usuario si cumple los requisitos de contraseña
+				self.printer.print_error("Password must have: " + ", ".join(failed_requirements))
+
 		if self.account_manager.register(username, password):
-			self.printer.print_success(f"You successfully registered user: {username}")
+			self.printer.print_success(f"User {username} registered successfully!")
 		else:
-			self.printer.print_error(f"Registration failed for user: {username}")
-		
+			self.printer.print_error(f"Registration failed for user {username}.")
+
 		return True
+
+	def _validate_register_password(self, password):
+		"""Validate the password requirements."""
+		password_requirements = {
+			r".{8,}": "at least 8 characters",
+			r"[A-Z]": "at least one uppercase letter",
+			r"[a-z]": "at least one lowercase letter",
+			r"\d": "at least one digit",
+			r"[!@#$%^&*()\-_=+\[\]{}|;:'\",.<>/?`~]": "at least one special character"
+		}
+
+		failed_requirements = []
+
+		for regex, message in password_requirements.items():
+			if not re.search(regex, password):
+				failed_requirements.append(message)
+
+		return failed_requirements
 
 	@staticmethod
 	def verify_user(username, account_manager, printer):
