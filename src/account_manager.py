@@ -103,8 +103,8 @@ class AccountManager:
 	def _setup_two_factor_auth(self, username):
 		"""Sets up 2FA by generating a QR code and displaying it."""
 		secret = self.users[username]['2fa_secret']
-		qr_code_image = get_qr_code(username, secret, self.printer)
+		qr_code_image = get_qr_code(username, secret)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
-		open_qr_image(qr_image_file, self.printer)
+		open_qr_image(qr_image_file)

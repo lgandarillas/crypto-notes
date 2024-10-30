@@ -10,22 +10,25 @@ import qrcode
 import io
 import os
 import subprocess
+from print_manager import PrintManager
 
 def generate_2fa_secret():
 	"""Generate a new TOTP secret for 2FA."""
 	return pyotp.random_base32()
 
-def get_qr_code(username, secret, printer):
+def get_qr_code(username, secret):
 	"""Generate a QR code image for the user to scan with Google Authenticator."""
 	otp_uri = pyotp.totp.TOTP(secret).provisioning_uri(username, issuer_name="Cryptography Carlos & Luis")
 	qr = qrcode.make(otp_uri)
 	buffer = io.BytesIO()
 	qr.save(buffer, "PNG")
+	printer = PrintManager()
 	printer.print_debug("[CRYPTO LOG] QR code generated for 2FA")
 	return buffer.getvalue()
 
-def open_qr_image(qr_image, printer):
+def open_qr_image(qr_image):
 	"""Open the QR code image using the default viewer for the OS."""
+	printer = PrintManager()
 	try:
 		if os.name == 'posix':
 			subprocess.Popen(['xdg-open', qr_image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
