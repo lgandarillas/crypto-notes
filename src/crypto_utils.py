@@ -8,12 +8,13 @@ By: Luis Gandarillas && Carlos Bravo
 
 import os
 import base64
+from print_manager import PrintManager
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.kdf.pbkdf2 import PBKDF2HMAC
 
 class CryptoUtils:
-	def __init__(self, printer):
-		self.printer = printer
+	def __init__(self):
+		self.printer = PrintManager()
 
 	def generate_salt(self):
 		"""Generate a random salt using os.urandom."""

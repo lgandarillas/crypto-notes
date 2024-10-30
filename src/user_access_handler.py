@@ -23,15 +23,15 @@ from cryptography.hazmat.primitives import serialization
 class UserAccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
 
-	def __init__(self, encryption_key):
+	def __init__(self):
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
 
 		# SIN REVISAR
-		self.encryption_key = encryption_key
-		self.account_manager = AccountManager(self.printer, encryption_key)
-		self.crypto_utils = CryptoUtils(self.printer)
+		self.encryption_key = "server_encryptation_key"
+		self.account_manager = AccountManager(self.encryption_key)
+		self.crypto_utils = CryptoUtils()
 
 	def _setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
@@ -50,7 +50,6 @@ class UserAccessHandler:
 			return self._handle_exit()
 		else:
 			return self._handle_invalid_mode(mode)
-
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
@@ -102,7 +101,6 @@ class UserAccessHandler:
 		}
 
 		failed_requirements = []
-
 		for regex, message in password_requirements.items():
 			if not re.search(regex, password):
 				failed_requirements.append(message)

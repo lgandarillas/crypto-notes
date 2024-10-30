@@ -11,17 +11,18 @@ import json
 import base64
 from crypto_utils import CryptoUtils
 from cryptography.fernet import Fernet
+from print_manager import PrintManager
 from rsa_utils import generate_rsa_keys, save_rsa_keys
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 
 class AccountManager:
 	"""Manages user accounts, including registration, login, and data encryption."""
 
-	def __init__(self, printer, encryption_key, database='data/users.json'):
-		self.printer = printer
+	def __init__(self, encryption_key, database='data/users.json'):
+		self.printer = PrintManager()
 		self.encryption_key = encryption_key
 		self.database = database
-		self.crypto_utils = CryptoUtils(printer)
+		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
 
 	def get_encryption_key(self):
