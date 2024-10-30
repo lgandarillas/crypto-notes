@@ -24,12 +24,12 @@ def get_qr_code(username, secret, printer):
 	printer.print_debug("[CRYPTO LOG] QR code generated for 2FA")
 	return buffer.getvalue()
 
-def open_qr_in_default_viewer(qr_image_file, printer):
+def open_qr_image(qr_image, printer):
 	"""Open the QR code image using the default viewer for the OS."""
 	try:
 		if os.name == 'posix':
-			subprocess.Popen(['xdg-open', qr_image_file], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			subprocess.Popen(['xdg-open', qr_image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
 		elif os.name == 'nt':
-			os.startfile(qr_image_file)
+			os.startfile(qr_image)
 	except Exception as ex:
 		self.printer.print_error(f"Error opening QR code image: {ex}")

@@ -12,7 +12,7 @@ import base64
 from crypto_utils import CryptoUtils
 from cryptography.fernet import Fernet
 from rsa_utils import generate_rsa_keys, save_rsa_keys
-from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_in_default_viewer
+from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 
 class AccountManager:
 	"""Manages user accounts, including registration, login, and data encryption."""
@@ -107,4 +107,4 @@ class AccountManager:
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
-		open_qr_in_default_viewer(qr_image_file, self.printer)
+		open_qr_image(qr_image_file, self.printer)
