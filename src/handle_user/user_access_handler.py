@@ -9,7 +9,6 @@ import os
 import re
 import pyotp
 import base64
-import getpass
 import pwinput
 import readline
 from crypto_utils import CryptoUtils
@@ -72,22 +71,42 @@ class UserAccessHandler:
 	def handle_register(self):
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
-		username = input("	Enter your username: ").strip()
 
-		while True:
-			password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
-			failed_requirements = self._validate_register_password(password)
-			if not failed_requirements:
-				break
-			else:
-				self.printer.print_error("Password must have: " + ", ".join(failed_requirements))
-
+		username = self._get_username()
+		if username is None:
+			return True
+		password = self._get_password()
+		if password is None:
+			return True
 		if self.account_manager.register(username, password):
 			self.printer.print_success(f"User {username} registered successfully!")
 		else:
 			self.printer.print_error(f"Registration failed for user {username}.")
 
 		return True
+
+	def _get_username(self):
+		"""Prompts the user to enter a username, handling interruption."""
+		try:
+			return input("    Enter your username: ").strip()
+		except KeyboardInterrupt:
+			self.printer.print_error("\nRegistration cancelled.")
+			return None
+
+	def _get_password(self):
+		"""Prompts the user to enter a password with validation, handling interruption."""
+		while True:
+			try:
+				password = pwinput.pwinput("    Enter your password: ", mask='*').strip()
+			except KeyboardInterrupt:
+				self.printer.print_error("\nRegistration cancelled.")
+				return None
+
+			failed_requirements = self._validate_register_password(password)
+			if not failed_requirements:
+				return password
+			else:
+				self.printer.print_error("Password must have: " + ", ".join(failed_requirements))
 
 	def _validate_register_password(self, password):
 		"""Validate the password requirements."""
