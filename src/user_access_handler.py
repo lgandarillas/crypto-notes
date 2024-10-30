@@ -1,7 +1,7 @@
 """
-src/mode_handler.py
+src/user_access_handler.py
 
-This file contains the mode handler for the program.
+Handles user access modes such as register, login, and exit.
 By: Luis Gandarillas && Carlos Bravo
 """
 
@@ -20,37 +20,42 @@ from account_manager import AccountManager
 from rsa_utils import generate_rsa_keys, save_rsa_keys
 from cryptography.hazmat.primitives import serialization
 
-class ModeHandler:
-	"""Handles different operating modes of the application such as register, login, and exit."""
-
-	MODES = {
-		"register": "register",
-		"login": "login",
-		"exit": "exit"
-	}
+class UserAccessHandler:
+	"""Handles user access modes such as register, login, and exit."""
 
 	def __init__(self, encryption_key):
-		self.setup_readline_history()
+		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
-		self.mode_handlers = {
-			self.MODES["register"]: self.handle_register,
-			self.MODES["login"]: self.handle_login,
-			self.MODES["exit"]: self.handle_exit
-		}
 
 		# SIN REVISAR
 		self.encryption_key = encryption_key
 		self.account_manager = AccountManager(self.printer, encryption_key)
 		self.crypto_utils = CryptoUtils(self.printer)
 
-	# OK
-	def setup_readline_history(self):
+	def _setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
-		for cmd in self.MODES.values():
-			readline.add_history(cmd)
+		MODES = ["register", "login", "exit"]
+		for mode in MODES:
+			readline.add_history(mode)
 
-	# OK
+	def handle_mode(self) -> bool:
+		"""Handle the selected mode by the user (register, login, or exit)."""
+		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
+		if mode == "register":
+			return self.handle_register()
+		elif mode == "login":
+			return self.handle_login()
+		elif mode == "exit":
+			return self.handle_exit()
+		else:
+			return self._handle_invalid_mode(mode)
+
+	def _handle_invalid_mode(self, mode: str):
+		"""Handle invalid modes, informing the user of the error."""
+		print(f"Invalid mode: {self.printer.COLOR_RED}{mode}{self.printer.COLOR_RESET}\n")
+		return True
+
 	def handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
 		for user in self.account_manager.users:
@@ -61,11 +66,7 @@ class ModeHandler:
 		self.printer.print_exit_msg()
 		exit(0)
 
-	def handle_mode(self) -> bool:
-		"""Handle the selected mode by the user (register, login, or exit)."""
-		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
-		handler = self.mode_handlers.get(mode, lambda: self.handle_invalid_mode(mode))
-		return handler()
+######################################################
 
 	def handle_register(self):
 		"""Handles user registration process."""
@@ -219,8 +220,3 @@ class ModeHandler:
 		"""Initializes the NoteHandler for managing user notes."""
 		note_handler = NoteHandler(self.printer, username, private_key, public_key)
 		note_handler.run()
-
-	def handle_invalid_mode(self, mode: str):
-		"""Handle invalid modes, informing the user of the error."""
-		print(f"Invalid mode: {self.printer.COLOR_RED}{mode}{self.printer.COLOR_RESET}\n")
-		return True
