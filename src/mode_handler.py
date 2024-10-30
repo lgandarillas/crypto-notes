@@ -13,6 +13,7 @@ import getpass
 import pwinput
 import readline
 from crypto_utils import CryptoUtils
+from print_manager import PrintManager
 from note_handler import NoteHandler
 from cryptography.fernet import Fernet
 from account_manager import AccountManager
@@ -28,22 +29,37 @@ class ModeHandler:
 		"exit": "exit"
 	}
 
-	def __init__(self, printer, encryption_key):
-		self.printer = printer
-		self.encryption_key = encryption_key
-		self.account_manager = AccountManager(printer, encryption_key)
+	def __init__(self, encryption_key):
+		self.setup_readline_history()
+		self.printer = PrintManager()
+		self.printer.print_welcome_msg()
 		self.mode_handlers = {
 			self.MODES["register"]: self.handle_register,
 			self.MODES["login"]: self.handle_login,
 			self.MODES["exit"]: self.handle_exit
 		}
-		self.crypto_utils = CryptoUtils(printer)
+
+		# SIN REVISAR
+		self.encryption_key = encryption_key
+		self.account_manager = AccountManager(self.printer, encryption_key)
+		self.crypto_utils = CryptoUtils(self.printer)
 
 	# OK
 	def setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
 		for cmd in self.MODES.values():
 			readline.add_history(cmd)
+
+	# OK
+	def handle_exit(self):
+		"""Handle the exit mode, printing the exit message."""
+		for user in self.account_manager.users:
+			qr_image_file = f"{user}_qrcode.png"
+			if os.path.exists(qr_image_file):
+				os.remove(qr_image_file)
+
+		self.printer.print_exit_msg()
+		return False
 
 	def handle_mode(self, mode: str) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""
@@ -202,16 +218,6 @@ class ModeHandler:
 		"""Initializes the NoteHandler for managing user notes."""
 		note_handler = NoteHandler(self.printer, username, private_key, public_key)
 		note_handler.run()
-
-	def handle_exit(self):
-		"""Handle the exit mode, printing the exit message."""
-		for user in self.account_manager.users:
-			qr_image_file = f"{user}_qrcode.png"
-			if os.path.exists(qr_image_file):
-				os.remove(qr_image_file)
-
-		self.printer.print_exit_msg()
-		return False
 
 	def handle_invalid_mode(self, mode: str):
 		"""Handle invalid modes, informing the user of the error."""

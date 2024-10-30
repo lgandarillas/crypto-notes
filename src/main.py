@@ -11,10 +11,7 @@ from mode_handler import ModeHandler
 
 def main():
 	printer = PrintManager()
-	printer.print_welcome_msg()
-
-	mode_handler = ModeHandler(printer, "server_encryptation_key")
-	mode_handler.setup_readline_history()
+	mode_handler = ModeHandler("server_encryptation_key")
 
 	while True:
 		try:
