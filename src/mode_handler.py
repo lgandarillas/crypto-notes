@@ -53,11 +53,35 @@ class ModeHandler:
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
 		username = input("	Enter a new username: ").strip()
-		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
+
+		# Bucle para validar los requisitos de la contraseña
+		while True:
+			password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
+			
+			# Definir los requisitos de la contraseña
+			requirements = [
+				(r".{8,}", "at least 8 characters"),
+				(r"[A-Z]", "at least one uppercase letter"),
+				(r"[a-z]", "at least one lowercase letter"),
+				(r"\d", "at least one digit"),
+				(r"[!@#$%^&*(),.?\":{}|<>]", "at least one special character")
+			]
+			
+			# Verificar cada requisito
+			failed_requirements = [msg for regex, msg in requirements if not re.search(regex, password)]
+			
+			if not failed_requirements:
+				break  # Todos los requisitos cumplen, salir del bucle
+			else:
+				# Mostrar los requisitos que faltan
+				self.printer.print_error(f"Password must have: {', '.join(failed_requirements)}")
+		
+		# Registro del usuario si cumple los requisitos de contraseña
 		if self.account_manager.register(username, password):
 			self.printer.print_success(f"You successfully registered user: {username}")
 		else:
 			self.printer.print_error(f"Registration failed for user: {username}")
+		
 		return True
 
 	@staticmethod
