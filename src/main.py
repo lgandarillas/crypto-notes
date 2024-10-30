@@ -6,11 +6,9 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import pwinput
-from print_manager import PrintManager
 from mode_handler import ModeHandler
 
 def main():
-	printer = PrintManager()
 	mode_handler = ModeHandler("server_encryptation_key")
 
 	while True:
