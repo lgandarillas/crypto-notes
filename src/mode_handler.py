@@ -59,7 +59,7 @@ class ModeHandler:
 				os.remove(qr_image_file)
 
 		self.printer.print_exit_msg()
-		return False
+		exit(0)
 
 	def handle_mode(self) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""

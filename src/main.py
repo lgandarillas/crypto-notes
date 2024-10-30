@@ -15,12 +15,10 @@ def main():
 
 	while True:
 		try:
-			if not mode_handler.handle_mode():
-				break
+			mode_handler.handle_mode()
 		except KeyboardInterrupt:
 			print("^C")
 			mode_handler.handle_exit()
-			break
 
 if __name__ == "__main__":
 	main()
