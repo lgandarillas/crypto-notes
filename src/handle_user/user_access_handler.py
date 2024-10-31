@@ -9,7 +9,6 @@ import os
 import pwinput
 import readline
 from note_handler import NoteHandler
-from crypto_utils import CryptoUtils
 from print_manager import PrintManager
 from account_manager import AccountManager
 from handle_user.login_handler import LoginHandler
@@ -24,7 +23,6 @@ class UserAccessHandler:
 		self.printer.print_welcome_msg()
 		# REVISAR
 		self.account_manager = AccountManager()
-		self.crypto_utils = CryptoUtils()
 
 	def _setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""

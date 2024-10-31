@@ -9,7 +9,6 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import json
 import base64
-from crypto_utils import CryptoUtils
 from print_manager import PrintManager
 from handle_user.register_handler import RegisterHandler
 from rsa_utils import generate_rsa_keys, save_rsa_keys
@@ -21,7 +20,6 @@ class AccountManager:
 	def __init__(self, database='data/users.json'):
 		self.printer = PrintManager()
 		self.database = database
-		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
 		self.register_handler = RegisterHandler(self)
 
