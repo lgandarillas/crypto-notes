@@ -1,5 +1,6 @@
 """
 src/handle_user/access_handler.py
+
 Handles user access modes such as register, login, and exit.
 By: Luis Gandarillas && Carlos Bravo
 """
@@ -26,9 +27,11 @@ class AccessHandler:
 
 	def handle_mode(self) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""
+
 		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, "
 					 f"{self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, "
 					 f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
+
 		if mode == "register":
 			return self.user_manager.register_handler.handle_register()
 		elif mode == "login":
