@@ -13,8 +13,8 @@ from rsa_utils import generate_rsa_keys, save_rsa_keys
 from note_handler import NoteHandler
 
 class LoginHandler:
-	def __init__(self, account_manager):
-		self.account_manager = account_manager
+	def __init__(self, user_manager):
+		self.user_manager = user_manager
 		self.printer = PrintManager()
 
 	def handle_login(self):
@@ -36,19 +36,19 @@ class LoginHandler:
 		return True
 
 	def _validate_user(self, username):
-		if username not in self.account_manager.users:
+		if username not in self.user_manager.users:
 			self.printer.print_error(f"Login failed: Username '{username}' not found.")
 			return False
 		return True
 
 	def _validate_password(self, username, password):
-		if password != self.account_manager.users.get(username, {}).get('password'):
+		if password != self.user_manager.users.get(username, {}).get('password'):
 			self.printer.print_error("Incorrect password.")
 			return False
 		return True
 
 	def _validate_2fa(self, username, otp_input):
-		totp = pyotp.TOTP(self.account_manager.users[username]['2fa_secret'])
+		totp = pyotp.TOTP(self.user_manager.users[username]['2fa_secret'])
 		if not totp.verify(otp_input):
 			self.printer.print_error("Invalid 2FA code.")
 			return False
@@ -56,7 +56,7 @@ class LoginHandler:
 
 	def _get_rsa_keys(self, username, password):
 		"""Retrieve the user's RSA keys, generating them if they do not exist."""
-		user = self.account_manager.users.get(username)
+		user = self.user_manager.users.get(username)
 
 		if "rsa_private_key" in user and "rsa_public_key" in user:
 			try:
@@ -89,6 +89,6 @@ class LoginHandler:
 					format=serialization.PublicFormat.SubjectPublicKeyInfo
 				)
 			).decode('utf-8')
-			self.account_manager.save_users()
+			self.user_manager.save_users()
 
 			return private_key, public_key

@@ -1,5 +1,5 @@
 """
-src/account_manager.py
+src/user_manager.py
 Refactored to delegate registration and login functionalities.
 By: Luis Gandarillas && Carlos Bravo
 """
@@ -10,7 +10,7 @@ from print_manager import PrintManager
 from handle_user.register_handler import RegisterHandler
 from handle_user.login_handler import LoginHandler
 
-class AccountManager:
+class UserManager:
 	"""Manages user accounts, delegating registration and login."""
 
 	def __init__(self, database='data/users.json'):

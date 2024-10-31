@@ -7,7 +7,7 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import readline
 from print_manager import PrintManager
-from handle_user.account_manager import AccountManager
+from handle_user.user_manager import UserManager
 
 class AccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
@@ -16,7 +16,7 @@ class AccessHandler:
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
-		self.account_manager = AccountManager()
+		self.user_manager = UserManager()
 
 	def _setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
@@ -30,9 +30,9 @@ class AccessHandler:
 					 f"{self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, "
 					 f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
 		if mode == "register":
-			return self.account_manager.register_handler.handle_register()
+			return self.user_manager.register_handler.handle_register()
 		elif mode == "login":
-			return self.account_manager.login_handler.handle_login()
+			return self.user_manager.login_handler.handle_login()
 		elif mode == "exit":
 			return self._handle_exit()
 		else:
@@ -40,7 +40,7 @@ class AccessHandler:
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
-		for user in self.account_manager.users:
+		for user in self.user_manager.users:
 			qr_image_file = f"{user}_qrcode.png"
 			if os.path.exists(qr_image_file):
 				os.remove(qr_image_file)

@@ -5,7 +5,7 @@
 ## Application Purpose
 This console-based secure notes system allows multiple users to register, log in, and access their private, encrypted notes. Users can create, read, delete notes, and view their list of stored notes. The application incorporates symmetric and asymmetric encryption, two-factor authentication, and secure key generation. The internal structure includes the following modules:
 
-- **AccountManager**: Manages user registration and authentication.
+- **UserManager**: Manages user registration and authentication.
 - **CryptoUtils**: Provides cryptographic functions, such as salt generation and key derivation.
 - **NoteHandler**: Allows users to create, read, list, and delete notes.
 - **RSAUtils**: Manages RSA key generation and storage.

@@ -12,8 +12,8 @@ from rsa_utils import generate_rsa_keys, save_rsa_keys
 from print_manager import PrintManager
 
 class RegisterHandler:
-	def __init__(self, account_manager: "AccountManager"):
-		self.account_manager = account_manager
+	def __init__(self, user_manager: "UserManager"):
+		self.user_manager = user_manager
 		self.printer = PrintManager()
 
 	def handle_register(self):
@@ -24,7 +24,7 @@ class RegisterHandler:
 		password = self._get_password()
 		if password is None:
 			return False
-		if username in self.account_manager.users:
+		if username in self.user_manager.users:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
 		self._initialize_user(username, password)
@@ -65,20 +65,20 @@ class RegisterHandler:
 
 	def _initialize_user(self, username, password):
 		secret = generate_2fa_secret()
-		self.account_manager.users[username] = {'password': password, '2fa_secret': secret}
-		self.account_manager.save_users()
+		self.user_manager.users[username] = {'password': password, '2fa_secret': secret}
+		self.user_manager.save_users()
 
 	def _generate_and_store_rsa_keys(self, username, password):
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
 		save_rsa_keys(self.printer, None, rsa_public_key, username)
-		self.account_manager.users[username].update({
+		self.user_manager.users[username].update({
 			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
 			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
 		})
-		self.account_manager.save_users()
+		self.user_manager.save_users()
 
 	def _setup_two_factor_auth(self, username):
-		secret = self.account_manager.users[username]['2fa_secret']
+		secret = self.user_manager.users[username]['2fa_secret']
 		qr_code_image = get_qr_code(username, secret)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
