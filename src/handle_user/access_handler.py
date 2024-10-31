@@ -1,5 +1,5 @@
 """
-src/handle_user/user_access_handler.py
+src/handle_user/access_handler.py
 Handles user access modes such as register, login, and exit.
 By: Luis Gandarillas && Carlos Bravo
 """
@@ -9,7 +9,7 @@ import readline
 from print_manager import PrintManager
 from handle_user.account_manager import AccountManager
 
-class UserAccessHandler:
+class AccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
 
 	def __init__(self):

@@ -6,20 +6,20 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import pwinput
-from handle_user.user_access_handler import UserAccessHandler
+from handle_user.access_handler import AccessHandler
 
 def main():
-	user_access_handler = UserAccessHandler()
+	access_handler = AccessHandler()
 
 	while True:
 		try:
-			user_access_handler.handle_mode()
+			access_handler.handle_mode()
 		except KeyboardInterrupt:
 			print("^C")
-			user_access_handler._handle_exit()
+			access_handler._handle_exit()
 		except EOFError:
 			print("^D")
-			user_access_handler._handle_exit()
+			access_handler._handle_exit()
 
 if __name__ == "__main__":
 	main()
