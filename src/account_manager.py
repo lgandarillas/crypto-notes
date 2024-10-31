@@ -10,7 +10,6 @@ import os
 import json
 import base64
 from crypto_utils import CryptoUtils
-from cryptography.fernet import Fernet
 from print_manager import PrintManager
 from rsa_utils import generate_rsa_keys, save_rsa_keys
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
@@ -20,7 +19,6 @@ class AccountManager:
 
 	def __init__(self, database='data/users.json'):
 		self.printer = PrintManager()
-		self.encryption_key = "server_encryptation_key"
 		self.database = database
 		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
@@ -56,17 +54,12 @@ class AccountManager:
 		return True
 
 	def _initialize_user(self, username, password):
-		"""Initializes a new user by generating a salt, deriving a key, and encrypting the password."""
-		salt = self.crypto_utils.generate_salt()
-		key = self.crypto_utils.derive_key(password, salt)
-		f = Fernet(key)
-		token = f.encrypt(password.encode())
-		self.printer.print_debug("[CRYPTO LOG] User password encrypted for registration; Fernet, 32 bytes")
+		"""Initializes a new user by storing the password in plain text and setting up 2FA."""
 		secret = generate_2fa_secret()
 
+		# Store the plain password and 2FA secret
 		self.users[username] = {
-			'salt': base64.urlsafe_b64encode(salt).decode(),
-			'token': token.decode(),
+			'password': password,
 			'2fa_secret': secret
 		}
 		self.save_users()

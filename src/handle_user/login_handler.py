@@ -52,21 +52,17 @@ class LoginHandler:
 		return True
 
 	def _validate_password(self, username, password):
-		"""Validates the user's password."""
+		"""Validates the user's password by comparing plain text passwords."""
 		user = self.account_manager.users.get(username)
 		if user is None:
 			self.printer.print_error(f"Login failed: Username '{username}' not found.")
 			return False
 
-		salt = base64.urlsafe_b64decode(user['salt'])
-		key = self.crypto_utils.derive_key(password, salt)
-		f = Fernet(key)
-		try:
-			f.decrypt(user['token'].encode())
-			return True
-		except Exception:
+		# Directly compare the stored password with the input
+		if password != user['password']:
 			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
 			return False
+		return True
 
 	def _validate_2fa(self, username, otp_input):
 		"""Validates the 2FA code provided by the user."""
