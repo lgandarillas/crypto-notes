@@ -6,18 +6,14 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import os
-import pyotp
-import base64
 import pwinput
 import readline
-from handle_user.register_handler import UserHandler
-from handle_user.login_handler import LoginHandler
+from note_handler import NoteHandler
 from crypto_utils import CryptoUtils
 from print_manager import PrintManager
-from note_handler import NoteHandler
-from cryptography.fernet import Fernet
 from account_manager import AccountManager
-from rsa_utils import generate_rsa_keys, save_rsa_keys
+from handle_user.login_handler import LoginHandler
+from handle_user.register_handler import RegisterHandler
 
 class UserAccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
@@ -26,8 +22,6 @@ class UserAccessHandler:
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
-
-		# SIN REVISAR
 		self.account_manager = AccountManager()
 		self.crypto_utils = CryptoUtils()
 
@@ -52,7 +46,7 @@ class UserAccessHandler:
 	def _handle_register(self):
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
-		register_handler = UserHandler(self.account_manager)
+		register_handler = RegisterHandler(self.account_manager)
 		register_handler.handle_register()
 
 	def _handle_exit(self):
@@ -72,5 +66,5 @@ class UserAccessHandler:
 
 	def _handle_login(self):
 		"""Initiates login process using LoginHandler."""
-		login_handler = LoginHandler(self.account_manager, self.crypto_utils, self.printer, NoteHandler)
+		login_handler = LoginHandler(self.account_manager, self.crypto_utils, NoteHandler)
 		login_handler.handle_login()

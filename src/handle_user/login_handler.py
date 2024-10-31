@@ -7,16 +7,17 @@ Handles the login process for existing users, including the generation of RSA ke
 import pwinput
 import pyotp
 import base64
+from print_manager import PrintManager
 from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import serialization
 
 class LoginHandler:
 	"""Handles the login process for existing users."""
 
-	def __init__(self, account_manager, crypto_utils, printer, note_handler):
+	def __init__(self, account_manager, crypto_utils, note_handler):
 		self.account_manager = account_manager
 		self.crypto_utils = crypto_utils
-		self.printer = printer
+		self.printer = PrintManager()
 		self.note_handler = note_handler
 
 	def handle_login(self):

@@ -9,7 +9,7 @@ import pwinput
 from print_manager import PrintManager
 from account_manager import AccountManager
 
-class UserHandler:
+class RegisterHandler:
 
 	def __init__(self, account_manager: AccountManager):
 		self.printer = PrintManager()
