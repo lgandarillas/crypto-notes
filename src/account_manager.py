@@ -11,6 +11,7 @@ import json
 import base64
 from crypto_utils import CryptoUtils
 from print_manager import PrintManager
+from handle_user.register_handler import RegisterHandler
 from rsa_utils import generate_rsa_keys, save_rsa_keys
 from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 
@@ -22,6 +23,10 @@ class AccountManager:
 		self.database = database
 		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
+		self.register_handler = RegisterHandler(self)
+
+	def register(self, username, password):
+		return self.register_handler.register(username, password)
 
 	def load_users(self):
 		"""Load user data from the encrypted database file."""

@@ -47,8 +47,7 @@ class UserAccessHandler:
 	def _handle_register(self):
 		"""Handles user registration process."""
 		self.printer.print_action("You selected register mode")
-		register_handler = RegisterHandler(self.account_manager)
-		register_handler.handle_register()
+		self.account_manager.register_handler.handle_register()
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
