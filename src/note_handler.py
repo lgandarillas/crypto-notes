@@ -23,8 +23,8 @@ class NoteHandler:
 		"exit": "exit"
 	}
 
-	def __init__(self, printer, username, rsa_private_key, rsa_public_key):
-		self.printer = printer
+	def __init__(self, username, rsa_private_key, rsa_public_key):
+		self.printer = PrintManager()
 		self.username = username
 		self.rsa_private_key = rsa_private_key
 		self.rsa_public_key = rsa_public_key
