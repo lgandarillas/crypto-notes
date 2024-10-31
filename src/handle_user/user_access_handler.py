@@ -7,7 +7,7 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import readline
 from print_manager import PrintManager
-from account_manager import AccountManager
+from handle_user.account_manager import AccountManager
 
 class UserAccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
@@ -27,7 +27,8 @@ class UserAccessHandler:
 	def handle_mode(self) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""
 		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, "
-					 f"{self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
+					 f"{self.printer.COLOR_BLUE}login{self.printer.COLOR_RESET}, "
+					 f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
 		if mode == "register":
 			return self.account_manager.register_handler.handle_register()
 		elif mode == "login":
