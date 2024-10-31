@@ -7,28 +7,26 @@ By: Luis Gandarillas && Carlos Bravo
 import re
 import base64
 import pwinput
-from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
-from rsa_utils import generate_rsa_keys, save_rsa_keys
 from print_manager import PrintManager
+from handle_user.user_manager import load_users, save_users
+from rsa_utils import generate_rsa_keys, save_rsa_keys
+from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 
 class RegisterHandler:
-	def __init__(self, user_manager: "UserManager"):
-		self.user_manager = user_manager
+	def __init__(self):
+		self.users = load_users()
 		self.printer = PrintManager()
 
 	def handle_register(self):
 		"""Handles the entire registration process."""
 		username = self._get_username()
-		if username is None:
-			return False
-		password = self._get_password()
-		if password is None:
-			return False
-		if username in self.user_manager.users:
+		if username in self.users:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
-		self._initialize_user(username, password)
+		password = self._get_password()
+		self.users[username] = {'password': password, '2fa_secret': generate_2fa_secret()}
 		self._generate_and_store_rsa_keys(username, password)
+		save_users(self.users)
 		self._setup_two_factor_auth(username)
 		self.printer.print_success(f"User {username} registered successfully!")
 		return True
@@ -65,20 +63,20 @@ class RegisterHandler:
 
 	def _initialize_user(self, username, password):
 		secret = generate_2fa_secret()
-		self.user_manager.users[username] = {'password': password, '2fa_secret': secret}
-		self.user_manager.save_users()
+		self.users[username] = {'password': password, '2fa_secret': secret}
+		save_users(self.users)
 
 	def _generate_and_store_rsa_keys(self, username, password):
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
 		save_rsa_keys(self.printer, None, rsa_public_key, username)
-		self.user_manager.users[username].update({
+		self.users[username].update({
 			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
 			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
 		})
-		self.user_manager.save_users()
+		save_users(self.users)
 
 	def _setup_two_factor_auth(self, username):
-		secret = self.user_manager.users[username]['2fa_secret']
+		secret = self.users[username]['2fa_secret']
 		qr_code_image = get_qr_code(username, secret)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:

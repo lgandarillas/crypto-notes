@@ -8,7 +8,9 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import readline
 from print_manager import PrintManager
-from handle_user.user_manager import UserManager
+from handle_user.register_handler import RegisterHandler
+from handle_user.login_handler import LoginHandler
+from handle_user.user_manager import load_users
 
 class AccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
@@ -17,7 +19,9 @@ class AccessHandler:
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
-		self.user_manager = UserManager()
+		self.users = load_users()
+		self.register_handler = RegisterHandler()
+		self.login_handler = LoginHandler(self.users)
 
 	def _setup_readline_history(self):
 		"""Set up basic readline history for the modes available."""
@@ -33,9 +37,11 @@ class AccessHandler:
 					 f"{self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}): ").strip().lower()
 
 		if mode == "register":
-			return self.user_manager.register_handler.handle_register()
+			if self.register_handler.handle_register():
+				self.users = load_users()
+				self.login_handler.users = self.users
 		elif mode == "login":
-			return self.user_manager.login_handler.handle_login()
+			return self.login_handler.handle_login()
 		elif mode == "exit":
 			return self._handle_exit()
 		else:
@@ -43,7 +49,7 @@ class AccessHandler:
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
-		for user in self.user_manager.users:
+		for user in self.users:
 			qr_image_file = f"{user}_qrcode.png"
 			if os.path.exists(qr_image_file):
 				os.remove(qr_image_file)
