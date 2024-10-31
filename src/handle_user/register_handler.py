@@ -10,7 +10,7 @@ import pwinput
 from print_manager import PrintManager
 from handle_user.user_manager import load_users, save_users
 from rsa_utils import generate_rsa_keys, save_rsa_keys
-from two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
+from handle_user.two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
 
 class RegisterHandler:
 	def __init__(self):
@@ -19,12 +19,17 @@ class RegisterHandler:
 
 	def handle_register(self):
 		"""Handles the entire registration process."""
+
 		username = self._get_username()
 		if username in self.users:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
+
 		password = self._get_password()
-		self.users[username] = {'password': password, '2fa_secret': generate_2fa_secret()}
+		self.users[username] = {
+			'password': password,
+			'2fa_secret': generate_2fa_secret()
+		}
 		self._generate_and_store_rsa_keys(username, password)
 		save_users(self.users)
 		self._setup_two_factor_auth(username)
@@ -60,11 +65,6 @@ class RegisterHandler:
 			r"[!@#$%^&*()\-_=+\[\]{}|;:'\",.<>/?`~]": "one special character"
 		}
 		return [msg for regex, msg in requirements.items() if not re.search(regex, password)]
-
-	def _initialize_user(self, username, password):
-		secret = generate_2fa_secret()
-		self.users[username] = {'password': password, '2fa_secret': secret}
-		save_users(self.users)
 
 	def _generate_and_store_rsa_keys(self, username, password):
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
