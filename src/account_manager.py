@@ -25,43 +25,23 @@ class AccountManager:
 		self.crypto_utils = CryptoUtils()
 		self.users = self.load_users()
 
-	def get_encryption_key(self):
-		"""Derive a secure key and salt for encrypting user data."""
-		salt = os.urandom(16)
-		return self.crypto_utils.derive_key(self.encryption_key, salt), salt
-
 	def load_users(self):
 		"""Load user data from the encrypted database file."""
 		if not os.path.exists(self.database):
-			with open(self.database, 'wb') as file:
-				file.write(b"")
+			with open(self.database, 'w') as file:
+				file.write("{}")
 			return {}
 		try:
-			with open(self.database, 'rb') as file:
-				salt = file.read(16)
-				if not salt:
-					return {}
-				encrypted_data = file.read()
-				if not encrypted_data:
-					return {}
-				key = self.crypto_utils.derive_key(self.encryption_key, salt)
-				decryptor = Fernet(key)
-				decrypted_data = decryptor.decrypt(encrypted_data)
-				self.printer.print_debug("[CRYPTO LOG] User data decrypted; Fernet, 32 bytes")
-				return json.loads(decrypted_data.decode())
+			with open(self.database, 'r') as file:
+				return json.load(file)
 		except Exception as e:
 			self.printer.print_error(f"Failed to load users {e}")
 			return {}
 
 	def save_users(self):
 		"""Encrypt and save user data to the database file."""
-		key, salt = self.get_encryption_key()
-		f = Fernet(key)
-		encrypted_data = f.encrypt(json.dumps(self.users).encode())
-		self.printer.print_debug("[CRYPTO LOG] User data encrypted for saving; Fernet, 32 bytes")
-		with open(self.database, 'wb') as file:
-			file.write(salt)
-			file.write(encrypted_data)
+		with open(self.database, 'w') as file:
+			json.dump(self.users, file, indent=4)
 
 	def register(self, username, password):
 		"""Registers a new user with a username and password, encrypts their data, and handles 2FA setup."""

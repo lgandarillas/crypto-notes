@@ -22,6 +22,7 @@ class UserAccessHandler:
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
+		# REVISAR
 		self.account_manager = AccountManager()
 		self.crypto_utils = CryptoUtils()
 
