@@ -1,125 +1,94 @@
 """
 src/handle_user/login_handler.py
-
-Handles the login process for existing users, including the generation of RSA keys,
+Handles the login process for existing users.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import pwinput
 import pyotp
 import base64
 from print_manager import PrintManager
-from cryptography.fernet import Fernet
 from cryptography.hazmat.primitives import serialization
+from rsa_utils import generate_rsa_keys, save_rsa_keys
+from note_handler import NoteHandler
 
 class LoginHandler:
-	"""Handles the login process for existing users."""
-
-	def __init__(self, account_manager, crypto_utils, note_handler):
+	def __init__(self, account_manager):
 		self.account_manager = account_manager
-		self.crypto_utils = crypto_utils
 		self.printer = PrintManager()
-		self.note_handler = note_handler
 
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
-		self.printer.print_action("You selected login mode")
-
-		username = input("	Enter your username: ").strip()
+		username = input("Enter your username: ").strip()
 		if not self._validate_user(username):
-			return True
-
-		password = pwinput.pwinput("	Enter your password: ", mask='*').strip()
+			return False
+		password = pwinput.pwinput("Enter your password: ", mask='*').strip()
 		if not self._validate_password(username, password):
-			return True
-
-		otp_input = pwinput.pwinput("	Enter your 2FA code from Google Authenticator: ", mask='*').strip()
+			return False
+		otp_input = pwinput.pwinput("Enter your 2FA code: ", mask='*').strip()
 		if not self._validate_2fa(username, otp_input):
-			return True
-
-		self.printer.show_progress_bar("Processing login...")
-		self.printer.print_success(f"User {username} logged in successfully!")
-
+			return False
 		private_key, public_key = self._get_rsa_keys(username, password)
-		self._launch_note_handler(username, private_key, public_key)
-
+		if private_key is None or public_key is None:
+			self.printer.print_error("Failed to retrieve RSA keys.")
+			return False
+		NoteHandler(self.printer, username, private_key, public_key).run()
 		return True
 
 	def _validate_user(self, username):
-		"""Validates if the user exists in the account manager."""
 		if username not in self.account_manager.users:
 			self.printer.print_error(f"Login failed: Username '{username}' not found.")
 			return False
 		return True
 
 	def _validate_password(self, username, password):
-		"""Validates the user's password by comparing plain text passwords."""
-		user = self.account_manager.users.get(username)
-		if user is None:
-			self.printer.print_error(f"Login failed: Username '{username}' not found.")
-			return False
-
-		# Directly compare the stored password with the input
-		if password != user['password']:
-			self.printer.print_error(f"Login failed: Incorrect password for user '{username}'.")
+		if password != self.account_manager.users.get(username, {}).get('password'):
+			self.printer.print_error("Incorrect password.")
 			return False
 		return True
 
 	def _validate_2fa(self, username, otp_input):
-		"""Validates the 2FA code provided by the user."""
-		user = self.account_manager.users.get(username)
-		if user is None:
-			self.printer.print_error(f"Login failed: Username '{username}' not found.")
-			return False
-
-		totp = pyotp.TOTP(user['2fa_secret'])
+		totp = pyotp.TOTP(self.account_manager.users[username]['2fa_secret'])
 		if not totp.verify(otp_input):
-			self.printer.print_error("Login failed: Invalid 2FA code.")
+			self.printer.print_error("Invalid 2FA code.")
 			return False
 		return True
 
 	def _get_rsa_keys(self, username, password):
-		"""Retrieves or generates RSA keys for the user."""
+		"""Retrieve the user's RSA keys, generating them if they do not exist."""
 		user = self.account_manager.users.get(username)
 
 		if "rsa_private_key" in user and "rsa_public_key" in user:
-			return self._load_rsa_keys(user, password)
+			try:
+				private_key = serialization.load_pem_private_key(
+					base64.b64decode(user["rsa_private_key"]),
+					password=password.encode()
+				)
+				public_key = serialization.load_pem_public_key(
+					base64.b64decode(user["rsa_public_key"])
+				)
+				return private_key, public_key
+			except Exception as e:
+				self.printer.print_error(f"Failed to load RSA keys: {e}")
+				return None, None
 		else:
-			return self._generate_and_store_rsa_keys(username, password, user)
+			# Generate and store new RSA keys if they don't exist
+			private_key, public_key = generate_rsa_keys(self.printer, password)
+			save_rsa_keys(self.printer, None, public_key, username)
 
-	def _load_rsa_keys(self, user, password):
-		"""Loads existing RSA private and public keys for the user."""
-		private_key = serialization.load_pem_private_key(
-			base64.b64decode(user["rsa_private_key"]),
-			password=password.encode()
-		)
-		public_key = serialization.load_pem_public_key(
-			base64.b64decode(user["rsa_public_key"])
-		)
-		return private_key, public_key
+			user["rsa_private_key"] = base64.b64encode(
+				private_key.private_bytes(
+					encoding=serialization.Encoding.PEM,
+					format=serialization.PrivateFormat.PKCS8,
+					encryption_algorithm=serialization.BestAvailableEncryption(password.encode())
+				)
+			).decode('utf-8')
+			user["rsa_public_key"] = base64.b64encode(
+				public_key.public_bytes(
+					encoding=serialization.Encoding.PEM,
+					format=serialization.PublicFormat.SubjectPublicKeyInfo
+				)
+			).decode('utf-8')
+			self.account_manager.save_users()
 
-	def _generate_and_store_rsa_keys(self, username, password, user):
-		"""Generates and stores RSA private and public keys for the user."""
-		private_key, public_key = generate_rsa_keys(self.printer, password)
-		save_rsa_keys(self.printer, None, public_key, username)
-
-		user["rsa_private_key"] = base64.b64encode(
-			private_key.private_bytes(
-				encoding=serialization.Encoding.PEM,
-				format=serialization.PrivateFormat.PKCS8,
-				encryption_algorithm=serialization.BestAvailableEncryption(password.encode())
-			)
-		).decode('utf-8')
-		user["rsa_public_key"] = base64.b64encode(
-			public_key.public_bytes(
-				encoding=serialization.Encoding.PEM,
-				format=serialization.PublicFormat.SubjectPublicKeyInfo
-			)
-		).decode('utf-8')
-		self.account_manager.save_users()
-
-		return private_key, public_key
-
-	def _launch_note_handler(self, username, private_key, public_key):
-		"""Initializes the NoteHandler for managing user notes."""
-		note_handler = self.note_handler(self.printer, username, private_key, public_key)
-		note_handler.run()
+			return private_key, public_key
