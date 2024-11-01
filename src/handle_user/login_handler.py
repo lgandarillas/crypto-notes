@@ -20,8 +20,8 @@ class LoginHandler:
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
 
-		username = input("Enter your username: ").strip()
-		if not self._validate_user(username):
+		username = self._get_username()
+		if username is None:
 			return False
 
 		password = pwinput.pwinput("Enter your password: ", mask='*').strip()
@@ -41,12 +41,23 @@ class LoginHandler:
 
 		return True
 
-	def _validate_user(self, username):
-		"""Validate that the user exists."""
-		if username not in self.users:
-			self.printer.print_error(f"Login failed: Username '{username}' not found.")
-			return False
-		return True
+	def _get_username(self):
+		"""Prompt the user for a username and validate its existence with Ctrl+C handling."""
+		while True:
+			try:
+				username = input("Enter your username: ").strip()
+				if username not in self.users:
+					self.printer.print_error(f"Login failed: Username '{username}' not found.")
+					cancel = input("Do you want to cancel login? (y/n): ").strip().lower()
+					if cancel == 'y':
+						self.printer.print_error("Login cancelled.")
+						return None
+				else:
+					return username
+			except KeyboardInterrupt:
+				self.printer.print_error("\nLogin cancelled.")
+				return None
+
 
 	def _validate_password(self, username, password):
 		"""Validate the user's password."""
