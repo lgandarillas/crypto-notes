@@ -7,8 +7,8 @@ By: Luis Gandarillas && Carlos Bravo
 import pyotp
 import base64
 import pwinput
-from note_handler import NoteHandler
 from print_manager import PrintManager
+from handle_notes.note_handler import NoteHandler
 from rsa_utils import generate_rsa_keys, save_rsa_keys
 from cryptography.hazmat.primitives import serialization
 
