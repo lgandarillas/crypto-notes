@@ -23,13 +23,7 @@ class AccessHandler:
 		self.register_handler = RegisterHandler()
 		self.login_handler = LoginHandler(self.users)
 
-	def _setup_readline_history(self):
-		"""Set up basic readline history for the modes available."""
-		MODES = ["register", "login", "exit"]
-		for mode in MODES:
-			readline.add_history(mode)
-
-	def handle_mode(self) -> bool:
+	def handle_access(self) -> bool:
 		"""Handle the selected mode by the user (register, login, or exit)."""
 
 		mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}register{self.printer.COLOR_RESET}, "
@@ -46,6 +40,12 @@ class AccessHandler:
 			return self._handle_exit()
 		else:
 			return self._handle_invalid_mode(mode)
+
+	def _setup_readline_history(self):
+		"""Set up basic readline history for the modes available."""
+		MODES = ["register", "login", "exit"]
+		for mode in MODES:
+			readline.add_history(mode)
 
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""

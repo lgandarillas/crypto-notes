@@ -196,12 +196,12 @@ class NoteHandler:
 						self.printer.print_action("Exiting notes manager")
 						break
 					else:
-						self.handle_mode(mode)
+						self.handle_access(mode)
 				except KeyboardInterrupt:
 					print("^C")
 					break
 
-	def handle_mode(self, mode):
+	def handle_access(self, mode):
 		"""Dispatches the action based on the mode chosen by the user."""
 		handler = self.note_handlers.get(mode, self.handle_invalid_mode)
 		return handler()

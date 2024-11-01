@@ -13,7 +13,7 @@ def main():
 
 	while True:
 		try:
-			access_handler.handle_mode()
+			access_handler.handle_access()
 		except (KeyboardInterrupt, EOFError):
 			print("\n")
 			access_handler._handle_exit()
