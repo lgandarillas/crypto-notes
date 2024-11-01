@@ -14,11 +14,8 @@ def main():
 	while True:
 		try:
 			access_handler.handle_mode()
-		except KeyboardInterrupt:
-			print("^C")
-			access_handler._handle_exit()
-		except EOFError:
-			print("^D")
+		except (KeyboardInterrupt, EOFError):
+			print("\n")
 			access_handler._handle_exit()
 
 if __name__ == "__main__":
