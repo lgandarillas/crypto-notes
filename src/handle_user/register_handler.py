@@ -14,12 +14,13 @@ import pwinput
 import subprocess
 from print_manager import PrintManager
 from rsa_utils import generate_rsa_keys, save_rsa_keys
-from handle_user.user_manager import load_users, save_users
+from handle_user.access_crypto_utils import UserCrypto
 
 class RegisterHandler:
 	def __init__(self):
-		self.users = load_users()
 		self.printer = PrintManager()
+		self.user_crypto = UserCrypto()
+		self.users = self.user_crypto.load_users()
 
 	def handle_register(self):
 		"""Handles the entire registration process."""
@@ -35,7 +36,7 @@ class RegisterHandler:
 			'2fa_secret': self._generate_2fa_secret()
 		}
 		self._generate_and_store_rsa_keys(username, password)
-		save_users(self.users)
+		self.user_crypto.save_users(self.users)
 		self._setup_two_factor_auth(username)
 		self.printer.print_success(f"User {username} registered successfully!")
 		return True
@@ -77,7 +78,7 @@ class RegisterHandler:
 			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
 			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
 		})
-		save_users(self.users)
+		self.user_crypto.save_users(self.users)
 
 	def _setup_two_factor_auth(self, username):
 		secret = self.users[username]['2fa_secret']

@@ -8,9 +8,9 @@ By: Luis Gandarillas && Carlos Bravo
 import os
 import readline
 from print_manager import PrintManager
-from handle_user.register_handler import RegisterHandler
 from handle_user.login_handler import LoginHandler
-from handle_user.user_manager import load_users
+from handle_user.access_crypto_utils import UserCrypto
+from handle_user.register_handler import RegisterHandler
 
 class AccessHandler:
 	"""Handles user access modes such as register, login, and exit."""
@@ -19,7 +19,8 @@ class AccessHandler:
 		self._setup_readline_history()
 		self.printer = PrintManager()
 		self.printer.print_welcome_msg()
-		self.users = load_users()
+		self.user_crypto = UserCrypto()
+		self.users = self.user_crypto.load_users()
 		self.register_handler = RegisterHandler()
 		self.login_handler = LoginHandler(self.users)
 
@@ -32,7 +33,7 @@ class AccessHandler:
 
 		if mode == "register":
 			if self.register_handler.handle_register():
-				self.users = load_users()
+				self.users = self.user_crypto.load_users()
 				self.login_handler.users = self.users
 		elif mode == "login":
 			return self.login_handler.handle_login()

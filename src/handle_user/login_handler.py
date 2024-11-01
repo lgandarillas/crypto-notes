@@ -4,13 +4,13 @@ Handles the login process for existing users.
 By: Luis Gandarillas && Carlos Bravo
 """
 
-import pwinput
 import pyotp
 import base64
-from print_manager import PrintManager
-from cryptography.hazmat.primitives import serialization
-from rsa_utils import generate_rsa_keys, save_rsa_keys
+import pwinput
 from note_handler import NoteHandler
+from print_manager import PrintManager
+from rsa_utils import generate_rsa_keys, save_rsa_keys
+from cryptography.hazmat.primitives import serialization
 
 class LoginHandler:
 	def __init__(self, users):
