@@ -28,8 +28,7 @@ class LoginHandler:
 		if password is None:
 			return False
 
-		otp_input = pwinput.pwinput("Enter your 2FA code: ", mask='*').strip()
-		if not self._validate_2fa(username, otp_input):
+		if not self._validate_2fa(username):
 			return False
 
 		private_key, public_key = self._get_rsa_keys(username, password)
@@ -80,13 +79,25 @@ class LoginHandler:
 				self.printer.print_error("\nLogin cancelled.")
 				return None
 
-	def _validate_2fa(self, username, otp_input):
-		"""Validate the user's 2FA code."""
-		totp = pyotp.TOTP(self.users[username]['2fa_secret'])
-		if not totp.verify(otp_input):
-			self.printer.print_error("Invalid 2FA code.")
-			return False
-		return True
+	def _validate_2fa(self, username):
+		"""Validate the user's 2FA code with retry/cancel option only."""
+		while True:
+			otp_input = pwinput.pwinput("Enter your 2FA code: ", mask='*').strip()
+			if otp_input == "":
+				cancel = input("Do you want to cancel login? (y/n): ").strip().lower()
+				if cancel == 'y':
+					self.printer.print_error("Login cancelled.")
+					return False
+
+			totp = pyotp.TOTP(self.users[username]['2fa_secret'])
+			if totp.verify(otp_input):
+				return True
+			else:
+				self.printer.print_error("Invalid 2FA code.")
+				retry = input("Do you want to try again? (y/n): ").strip().lower()
+				if retry == 'n':
+					self.printer.print_error("Login cancelled.")
+					return False
 
 	def _get_rsa_keys(self, username, password):
 		"""Retrieve or generate the user's RSA keys."""
