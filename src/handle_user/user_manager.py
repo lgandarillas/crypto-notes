@@ -13,6 +13,9 @@ printer = PrintManager()
 
 def load_users():
 	"""Load user data from the encrypted database file."""
+
+	os.makedirs(os.path.dirname(USERS_DATABSE), exist_ok=True)
+
 	if not os.path.exists(USERS_DATABSE):
 		with open(USERS_DATABSE, 'w') as file:
 			file.write("{}")
@@ -26,5 +29,8 @@ def load_users():
 
 def save_users(users):
 	"""Save user data to the database file."""
+
+	os.makedirs(os.path.dirname(USERS_DATABSE), exist_ok=True)
+
 	with open(USERS_DATABSE, 'w') as file:
 		json.dump(users, file, indent=4)
