@@ -26,11 +26,15 @@ class RegisterHandler:
 		"""Handles the entire registration process."""
 
 		username = self._get_username()
+		if username is None:
+			return False
 		if username in self.users:
 			self.printer.print_error(f"Registration failed: Username '{username}' already exists.")
 			return False
 
 		password = self._get_password()
+		if password is None:
+			return False
 		self.users[username] = {
 			'password': password,
 			'2fa_secret': self._generate_2fa_secret()
@@ -60,6 +64,20 @@ class RegisterHandler:
 			except KeyboardInterrupt:
 				self.printer.print_error("\nRegistration cancelled.")
 				return None
+
+	def _get_password(self):
+		"""Prompt the user for a password with an option to cancel registration if requirements are not met."""
+		while True:
+			password = pwinput.pwinput("Enter your password: ", mask='*').strip()
+			failed_requirements = self._validate_password(password)
+			if not failed_requirements:
+				return password
+			else:
+				self.printer.print_error("Password must have: " + ", ".join(failed_requirements))
+				cancel = input("Do you want to cancel registration? (y/n): ").strip().lower()
+				if cancel == 'y':
+					self.printer.print_error("Registration cancelled.")
+					return None
 
 	def _validate_password(self, password):
 		requirements = {
