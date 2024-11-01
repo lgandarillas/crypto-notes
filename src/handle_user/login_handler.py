@@ -36,7 +36,7 @@ class LoginHandler:
 			self.printer.print_error("Failed to retrieve RSA keys.")
 			return False
 
-		NoteHandler(username, private_key, public_key).run()
+		NoteHandler(username, private_key, public_key).run_notes_for_user()
 
 		return True
 
