@@ -5,12 +5,16 @@ By: Luis Gandarillas && Carlos Bravo
 """
 
 import re
+import io
+import os
+import pyotp
+import qrcode
 import base64
 import pwinput
+import subprocess
 from print_manager import PrintManager
-from handle_user.user_manager import load_users, save_users
 from rsa_utils import generate_rsa_keys, save_rsa_keys
-from handle_user.two_factor_auth import generate_2fa_secret, get_qr_code, open_qr_image
+from handle_user.user_manager import load_users, save_users
 
 class RegisterHandler:
 	def __init__(self):
@@ -28,7 +32,7 @@ class RegisterHandler:
 		password = self._get_password()
 		self.users[username] = {
 			'password': password,
-			'2fa_secret': generate_2fa_secret()
+			'2fa_secret': self._generate_2fa_secret()
 		}
 		self._generate_and_store_rsa_keys(username, password)
 		save_users(self.users)
@@ -77,8 +81,33 @@ class RegisterHandler:
 
 	def _setup_two_factor_auth(self, username):
 		secret = self.users[username]['2fa_secret']
-		qr_code_image = get_qr_code(username, secret)
+		qr_code_image = self._get_qr_code(username, secret)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
-		open_qr_image(qr_image_file)
+		self._open_qr_image(qr_image_file)
+
+	def _generate_2fa_secret(self):
+		"""Generate a new TOTP secret for 2FA."""
+		return pyotp.random_base32()
+
+	def _get_qr_code(self, username, secret):
+		"""Generate a QR code image for the user to scan with Google Authenticator."""
+		otp_uri = pyotp.totp.TOTP(secret).provisioning_uri(username, issuer_name="Cryptography Carlos & Luis")
+		qr = qrcode.make(otp_uri)
+		buffer = io.BytesIO()
+		qr.save(buffer, "PNG")
+		printer = PrintManager()
+		printer.print_debug("[CRYPTO LOG] QR code generated for 2FA")
+		return buffer.getvalue()
+
+	def _open_qr_image(self, qr_image):
+		"""Open the QR code image using the default viewer for the OS."""
+		printer = PrintManager()
+		try:
+			if os.name == 'posix':
+				subprocess.Popen(['xdg-open', qr_image], stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL)
+			elif os.name == 'nt':
+				os.startfile(qr_image)
+		except Exception as ex:
+			self.printer.print_error(f"Error opening QR code image: {ex}")
