@@ -24,8 +24,8 @@ class LoginHandler:
 		if username is None:
 			return False
 
-		password = pwinput.pwinput("Enter your password: ", mask='*').strip()
-		if not self._validate_password(username, password):
+		password = self._get_password(username)
+		if password is None:
 			return False
 
 		otp_input = pwinput.pwinput("Enter your 2FA code: ", mask='*').strip()
@@ -58,13 +58,27 @@ class LoginHandler:
 				self.printer.print_error("\nLogin cancelled.")
 				return None
 
-
-	def _validate_password(self, username, password):
-		"""Validate the user's password."""
-		if password != self.users.get(username, {}).get('password'):
-			self.printer.print_error("Incorrect password.")
-			return False
-		return True
+	def _get_password(self, username):
+		"""Prompt for and validate the user's password with an option to cancel."""
+		while True:
+			try:
+				password = pwinput.pwinput("Enter your password: ", mask='*').strip()
+				if password == "":
+					cancel = input("Do you want to cancel login? (y/n): ").strip().lower()
+					if cancel == 'y':
+						self.printer.print_error("Login cancelled.")
+						return None
+				if password == self.users.get(username, {}).get('password'):
+					return password
+				else:
+					self.printer.print_error("Incorrect password.")
+					retry = input("Do you want to try again? (y/n): ").strip().lower()
+					if retry == 'n':
+						self.printer.print_error("Login cancelled.")
+						return None
+			except KeyboardInterrupt:
+				self.printer.print_error("\nLogin cancelled.")
+				return None
 
 	def _validate_2fa(self, username, otp_input):
 		"""Validate the user's 2FA code."""
