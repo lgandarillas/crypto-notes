@@ -42,6 +42,7 @@ class UserCrypto:
 		with open(USERS_DATABSE, 'w') as file:
 			json.dump(users, file, indent=4)
 
+	# NOT USED
 	def get_server_key(self):
 		"""
 		Obtains the encryption key for data/users.json by searching for the file data/.server_key.txt.
@@ -58,10 +59,12 @@ class UserCrypto:
 				file.write(key)
 			return key
 
+	# NOT USED
 	def _generate_fernet_key(self):
 		"""Generates a new Fernet key."""
 		return Fernet.generate_key()
 
+	# NOT USED
 	def encrypt_users_json(self):
 		"""Encrypts the data/users.json file when it is not being used to read or modify data."""
 		path = "data/users.json"
@@ -75,6 +78,7 @@ class UserCrypto:
 				file.write(encrypted_data)
 			self.printer.print_debug("Archivo users.json cifrado correctamente.")
 
+	# NOT USED
 	def decrypt_users_json(self):
 		"""Decrypts the data/users.json file when it is being used to read or modify data."""
 		path = "data/users.json"
@@ -105,11 +109,12 @@ class UserCrypto:
 		except Exception as e:
 			self.printer.print_error(f"Error al descifrar users.json: {e}")
 
-
+	# NOT USED
 	def generate_salt(self):
 		"""Generates a random salt."""
 		return os.urandom(16)
 
+	# NOT USED
 	def generate_token(self, salt, password):
 		"""Generates a token using the salt and password."""
 		password_bytes = password.encode()

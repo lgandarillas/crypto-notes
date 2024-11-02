@@ -34,17 +34,31 @@ class NoteHandler:
 		self.encrypted_session_key = None
 		self.notes = self.load_notes()
 		self.note_handlers = {
-			self.MODES["new"]: self.handle_new_note,
-			self.MODES["read"]: self.handle_read_note,
-			self.MODES["list"]: self.handle_list_notes,
-			self.MODES["delete"]: self.handle_delete_note,
-			self.MODES["exit"]: self.handle_exit
+			self.MODES["read"]: self._read_note,
+			self.MODES["new"]: self._new_note,
+			self.MODES["delete"]: self._delete_note,
+			self.MODES["list"]: self._list_notes,
+			self.MODES["exit"]: self._exit_notes
 		}
+
+################################################## OK
+
+	def _read_note(self):
+		"""Handles reading a note by name, displaying its content if found."""
+		self.printer.print_action("You selected read note mode")
+		note_name = input("Enter the name of the note you want to read: ").strip()
+		note = next((note for note in self.notes if note['name'] == note_name), None)
+		if note:
+			print(f"Content of '{note_name}':\n{note['content']}")
+		else:
+			self.printer.print_error(f"Note '{note_name}' not found.")
+
+################################################## OK
 
 	def run_notes_for_user(self, is_first_time_login=False):
 		"""Runs the note management session, allowing the user to choose different note operations."""
 		if is_first_time_login:
-			self.handle_new_note()
+			self._new_note()
 		else:
 			while True:
 				try:
@@ -109,7 +123,7 @@ class NoteHandler:
 				json.dump(encrypted_data, file, indent=4)
 				self.printer.print_debug("[CRYPTO LOG] Encrypted notes data saved to file; JSON format")
 
-	def handle_exit(self):
+	def _exit_notes(self):
 		"""Handles the exit process from the note manager."""
 		self.save_notes()
 		self.printer.print_action("Exiting notes manager")
@@ -128,7 +142,7 @@ class NoteHandler:
 
 		return True
 
-	def handle_new_note(self):
+	def _new_note(self):
 		"""Handles the creation of a new note, including input validation and storage."""
 
 		self.printer.print_action("You selected new note mode")
@@ -156,20 +170,7 @@ class NoteHandler:
 
 		self.printer.print_success(f"Note '{note_name}' has been created.")
 
-	def handle_read_note(self):
-		"""Handles reading a note by name, displaying its content if found."""
-
-		self.printer.print_action("You selected read note mode")
-
-		note_name = input("Enter the name of the note you want to read: ").strip()
-
-		note = next((note for note in self.notes if note['name'] == note_name), None)
-		if note:
-			print(f"Content of '{note_name}':\n{note['content']}")
-		else:
-			self.printer.print_error(f"Note '{note_name}' not found.")
-
-	def handle_list_notes(self):
+	def _list_notes(self):
 		"""Lists all notes currently stored for the user."""
 
 		self.printer.print_action("Your notes available are:")
@@ -183,7 +184,7 @@ class NoteHandler:
 		else:
 			self.printer.print_error("No notes found.")
 
-	def handle_delete_note(self):
+	def _delete_note(self):
 		"""Deletes a note by name if it exists."""
 
 		self.printer.print_action("You selected delete note mode")
@@ -197,17 +198,11 @@ class NoteHandler:
 		else:
 			self.printer.print_error(f"Note '{note_name}' not found.")
 
-	def handle_exit(self):
-		"""Handles the exit process from the note manager."""
-		self.printer.print_action("Exiting notes manager")
-		return False
-
 	def handle_access(self, mode):
-		"""Dispatches the action based on the mode chosen by the user."""
-		handler = self.note_handlers.get(mode, self.handle_invalid_mode)
-		return handler()
-
-	def handle_invalid_mode(self):
-		"""Informs the user that an invalid mode has been selected."""
-		self.printer.print_error("Invalid mode selected")
+		"""Dispatches the action based on the mode chosen by the user or informs of an invalid selection."""
+		handler = self.note_handlers.get(mode)
+		if handler:
+			return handler()
+		else:
+			self.printer.print_error("Invalid mode selected")
 		return True
