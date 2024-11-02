@@ -102,12 +102,21 @@ class LoginHandler:
 
 	def _get_rsa_keys(self, username, password):
 		"""Retrieve or generate the user's RSA keys."""
-		user = self.users.get(username)
+		try:
+			with open(f"data/keys/{username}/{username}_private_key.pem", 'rb') as priv_file:
+				private_key = serialization.load_pem_private_key(
+					priv_file.read(),
+					password=password.encode()
+				)
 
-		if "rsa_private_key" in user and "rsa_public_key" in user:
-			return self._load_rsa_keys(user, password)
-		else:
-			return self._generate_and_save_rsa_keys(user, username, password)
+			with open(f"data/keys/public/{username}_public_key.pem", 'rb') as pub_file:
+				public_key = serialization.load_pem_public_key(
+					pub_file.read()
+				)
+			return private_key, public_key
+		except Exception as e:
+			self.printer.print_error(f"Failed to load RSA keys for {username}: {e}")
+			return None, None
 
 	def _load_rsa_keys(self, user, password):
 		"""Load existing RSA keys for the user."""

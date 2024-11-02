@@ -92,7 +92,7 @@ class RegisterHandler:
 
 	def _generate_and_store_rsa_keys(self, username, password):
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
-		save_rsa_keys(self.printer, None, rsa_public_key, username)
+		save_rsa_keys(self.printer, rsa_private_key, rsa_public_key, username)
 		self.users[username].update({
 			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
 			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
