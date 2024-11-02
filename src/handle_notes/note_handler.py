@@ -27,25 +27,25 @@ class NoteHandler:
 		"""Runs the note management session, allowing the user to choose different note operations."""
 		if is_first_time_login:
 			self._new_note()
-		else:
-			while True:
-				try:
-					mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
+			return
+		while True:
+			try:
+				mode = input(f"\nSelect a mode ({self.printer.COLOR_BLUE}new{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}read{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}list{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}delete{self.printer.COLOR_RESET}, {self.printer.COLOR_BLUE}exit{self.printer.COLOR_RESET}) for user {self.username}: ").strip().lower()
 
-					if mode == "exit":
-						self.printer.print_action(f"Exiting notes app for user {self.username}")
-						break
-					else:
-						self._execute_mode(mode)
-
-				except KeyboardInterrupt:
-					print("^C")
+				if mode == "exit":
 					self.printer.print_action(f"Exiting notes app for user {self.username}")
 					break
+				else:
+					self._execute_mode(mode)
+
+			except KeyboardInterrupt:
+				print("^C")
+				self.printer.print_action(f"Exiting notes app for user {self.username}")
+				break
 
 	def _execute_mode(self, mode):
 		"""Dispatches the action based on the mode chosen by the user or informs of an invalid selection."""
-		notes = self.load_notes()
+		notes = self._load_notes()
 		note_actions = NoteActions(notes)
 
 		if mode == "new":
@@ -58,7 +58,7 @@ class NoteHandler:
 		elif mode == "delete":
 			note_name = input("Enter the name of the note to delete: ").strip()
 			note_actions.delete(note_name)
-			self.save_notes(notes)
+			self._save_notes(notes)
 		else:
 			self.printer.print_error("Invalid mode selected")
 
@@ -66,10 +66,10 @@ class NoteHandler:
 		"""Handles the creation of a new note, including input validation and storage."""
 		self.printer.print_action("You selected new note mode")
 		note_name = input("Enter a name for the new note (letters, numbers, underscores only): ").strip()
-		notes = self.load_notes()
+		notes = self._load_notes()
 		note_actions = NoteActions(notes)
 
-		if not self.validate_note_name(note_name, notes, self.printer):
+		if not self._validate_note_name(note_name, notes, self.printer):
 			return
 
 		self.printer.print_action("Enter the note content (press Ctrl+D to finish):")
@@ -82,9 +82,9 @@ class NoteHandler:
 			note_content.append(line)
 		note_content = "\n".join(note_content)
 		note_actions.create(note_name, note_content)
-		self.save_notes(notes)
+		self._save_notes(notes)
 
-	def load_notes(self):
+	def _load_notes(self):
 		"""Loads notes from a file associated with the user."""
 		if not os.path.exists(self.notes_dir):
 			os.makedirs(self.notes_dir)
@@ -108,7 +108,7 @@ class NoteHandler:
 			self.printer.print_error(f"[SECURITY ALERT] Failed to load notes {e}")
 			exit(1)
 
-	def save_notes(self, notes):
+	def _save_notes(self, notes):
 		"""Saves the current list of notes to the user's file."""
 		if notes:
 			session_key = generate_session_key()
@@ -121,19 +121,21 @@ class NoteHandler:
 				"aad": aad.hex(),
 				"ciphertext": ciphertext.hex()
 			}
+
 			with open(self.notes_file, 'w') as file:
 				json.dump(encrypted_data, file, indent=4)
 				self.printer.print_debug("[CRYPTO LOG] Encrypted notes data saved to file; JSON format")
 
 	@staticmethod
-	def validate_note_name(note_name, notes, printer):
+	def _validate_note_name(note_name, notes, printer):
 		"""Validates the note name and checks if it already exists."""
 		if not re.match(r'^\w+$', note_name):
 			printer.print_error("Invalid note name. Only letters, numbers, and underscores are allowed.")
 			return False
 
-		if any(note["name"] == note_name for note in notes):
-			printer.print_error(f"Note '{note_name}' already exists. Please choose a different name.")
-			return False
+		for note in notes:
+			if note["name"] == note_name:
+				printer.print_error(f"Note '{note_name}' already exists. Please choose a different name.")
+				return False
 
 		return True
