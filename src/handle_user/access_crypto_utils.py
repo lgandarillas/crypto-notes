@@ -2,6 +2,7 @@
 src/handle_user/access_crypto_utils.py
 
 UserCrypto class is used to handle the user's crypto data.
+By: Luis Gandarillas && Carlos Bravo
 """
 
 import os

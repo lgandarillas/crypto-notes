@@ -1,5 +1,6 @@
 """
 src/handle_user/register_handler.py
+
 Handles the registration process for new users.
 By: Luis Gandarillas && Carlos Bravo
 """
@@ -13,7 +14,7 @@ import base64
 import pwinput
 import subprocess
 from print_manager import PrintManager
-from rsa_utils import generate_rsa_keys, save_rsa_keys
+from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
 from handle_user.access_crypto_utils import UserCrypto
 
 class RegisterHandler:

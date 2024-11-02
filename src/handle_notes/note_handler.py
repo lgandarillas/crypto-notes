@@ -9,8 +9,7 @@ import os
 import re
 import json
 from print_manager import PrintManager
-from note_crypto_utils import encrypt_notes_data, encrypt_session_key, generate_session_key, decrypt_session_key, decrypt_notes_data
-
+from handle_notes.note_crypto_utils import encrypt_notes_data, encrypt_session_key, generate_session_key, decrypt_session_key, decrypt_notes_data
 
 class NoteHandler:
 	"""Manages note-taking functionalities, including creating, reading, listing, and deleting notes."""
