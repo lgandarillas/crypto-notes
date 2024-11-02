@@ -33,7 +33,7 @@ class NoteHandler:
 		self.session_key = None
 		self.encrypted_session_key = None
 		self.notes = self.load_notes()
-		self.note_actions = NoteActions(self.notes, self.printer)
+		self.note_actions = NoteActions(self.notes)
 
 	def run_notes_app(self, is_first_time_login=False):
 		"""Runs the note management session, allowing the user to choose different note operations."""
