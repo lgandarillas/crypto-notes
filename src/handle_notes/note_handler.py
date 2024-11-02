@@ -57,8 +57,8 @@ class NoteHandler:
 			note_actions.list()
 		elif mode == "delete":
 			note_name = input("Enter the name of the note to delete: ").strip()
-			note_actions.delete(note_name)
-			self._save_notes(notes)
+			if note_actions.delete(note_name):
+				self._save_notes(notes)
 		else:
 			self.printer.print_error("Invalid mode selected")
 
@@ -122,9 +122,16 @@ class NoteHandler:
 				"ciphertext": ciphertext.hex()
 			}
 
+			if os.path.exists(self.notes_file):
+				os.remove(self.notes_file)
+
 			with open(self.notes_file, 'w') as file:
 				json.dump(encrypted_data, file, indent=4)
-				self.printer.print_debug("[CRYPTO LOG] Encrypted notes data saved to file; JSON format")
+
+			self.printer.print_debug(f"[DEBUG] Notas guardadas: {notes}")
+		else:
+			if os.path.exists(self.notes_file):
+				os.remove(self.notes_file)
 
 	@staticmethod
 	def _validate_note_name(note_name, notes, printer):
