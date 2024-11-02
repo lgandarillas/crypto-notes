@@ -33,11 +33,11 @@ class NoteHandler:
 		self.encrypted_session_key = None
 		self.notes = self.load_notes()
 		self.note_handlers = {
-			self.MODES["read"]: self._read_note,
+			self.MODES["read"]: self._read_note,		# OK
 			self.MODES["new"]: self._new_note,
-			self.MODES["delete"]: self._delete_note,
-			self.MODES["list"]: self._list_notes,
-			self.MODES["exit"]: self._exit_notes
+			self.MODES["delete"]: self._delete_note,	# OK
+			self.MODES["list"]: self._list_notes,		# OK
+			self.MODES["exit"]: self._exit_notes		# OK
 		}
 
 ################################################## OK
@@ -45,16 +45,54 @@ class NoteHandler:
 	def _read_note(self):
 		"""Handles reading a note by name, displaying its content if found."""
 		self.printer.print_action("You selected read note mode")
+
 		note_name = input("Enter the name of the note you want to read: ").strip()
-		note = next((note for note in self.notes if note['name'] == note_name), None)
-		if note:
-			print(f"Content of '{note_name}':\n{note['content']}")
+		found_note = None
+		for note in self.notes:
+			if note['name'] == note_name:
+				found_note = note
+				break
+		if found_note:
+				print(f"Content of '{note_name}':\n{found_note['content']}")
 		else:
 			self.printer.print_error(f"Note '{note_name}' not found.")
 
+	def _delete_note(self):
+		"""Deletes a note by name if it exists."""
+
+		self.printer.print_action("You selected delete note mode")
+
+		note_name = input("Enter the name of the note to delete: ").strip()
+		note = next((note for note in self.notes if note['name'] == note_name), None)
+		if note:
+			self.notes.remove(note)
+			self.save_notes(self.notes)
+			self.printer.print_success(f"Note '{note_name}' has been deleted.")
+		else:
+			self.printer.print_error(f"Note '{note_name}' not found.")
+
+	def _list_notes(self):
+		"""Lists all notes currently stored for the user."""
+		self.printer.print_action("Your notes available are:")
+
+		if self.notes:
+			for note in self.notes:
+				if isinstance(note, dict) and 'name' in note:
+					self.printer.print_action(f"- {note['name']}")
+				else:
+					self.printer.print_error("Invalid note format detected.")
+		else:
+			self.printer.print_error("No notes found.")
+
+	def _exit_notes(self):
+		"""Handles the exit process from the note manager."""
+		self.save_notes()
+		self.printer.print_action("Exiting notes manager")
+		return False
+
 ################################################## OK
 
-	def run_notes_for_user(self, is_first_time_login=False):
+	def run_notes_app(self, is_first_time_login=False):
 		"""Runs the note management session, allowing the user to choose different note operations."""
 		if is_first_time_login:
 			self._new_note()
@@ -122,12 +160,6 @@ class NoteHandler:
 				json.dump(encrypted_data, file, indent=4)
 				self.printer.print_debug("[CRYPTO LOG] Encrypted notes data saved to file; JSON format")
 
-	def _exit_notes(self):
-		"""Handles the exit process from the note manager."""
-		self.save_notes()
-		self.printer.print_action("Exiting notes manager")
-		return False
-
 	@staticmethod
 	def validate_note_name(note_name, notes, printer):
 		"""Validates the note name and checks if it already exists."""
@@ -168,34 +200,6 @@ class NoteHandler:
 		self.save_notes(self.notes)
 
 		self.printer.print_success(f"Note '{note_name}' has been created.")
-
-	def _list_notes(self):
-		"""Lists all notes currently stored for the user."""
-
-		self.printer.print_action("Your notes available are:")
-
-		if self.notes:
-			for note in self.notes:
-				if isinstance(note, dict) and 'name' in note:
-					self.printer.print_action(f"- {note['name']}")
-				else:
-					self.printer.print_error("Invalid note format detected.")
-		else:
-			self.printer.print_error("No notes found.")
-
-	def _delete_note(self):
-		"""Deletes a note by name if it exists."""
-
-		self.printer.print_action("You selected delete note mode")
-
-		note_name = input("Enter the name of the note to delete: ").strip()
-		note = next((note for note in self.notes if note['name'] == note_name), None)
-		if note:
-			self.notes.remove(note)
-			self.save_notes(self.notes)
-			self.printer.print_success(f"Note '{note_name}' has been deleted.")
-		else:
-			self.printer.print_error(f"Note '{note_name}' not found.")
 
 	def handle_access(self, mode):
 		"""Dispatches the action based on the mode chosen by the user or informs of an invalid selection."""
