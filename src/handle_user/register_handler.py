@@ -40,7 +40,7 @@ class RegisterHandler:
 			'password': password,
 			'2fa_secret': self._generate_2fa_secret()
 		}
-		self._generate_and_store_rsa_keys(username, password)
+		self._generate_and_save_rsa_keys(username, password)
 		self.user_crypto.save_users(self.users)
 		self._setup_two_factor_auth(username)
 		self.printer.print_success(f"User {username} registered successfully!")
@@ -90,14 +90,9 @@ class RegisterHandler:
 		}
 		return [msg for regex, msg in requirements.items() if not re.search(regex, password)]
 
-	def _generate_and_store_rsa_keys(self, username, password):
+	def _generate_and_save_rsa_keys(self, username, password):
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
 		save_rsa_keys(self.printer, rsa_private_key, rsa_public_key, username)
-		self.users[username].update({
-			'rsa_private_key': base64.b64encode(rsa_private_key).decode('utf-8'),
-			'rsa_public_key': base64.b64encode(rsa_public_key).decode('utf-8')
-		})
-		self.user_crypto.save_users(self.users)
 
 	def _setup_two_factor_auth(self, username):
 		secret = self.users[username]['2fa_secret']
