@@ -28,8 +28,9 @@ class UserCrypto:
 			with open(USERS_DATABASE, 'w') as file:
 				file.write("{}")
 			return {}
+
 		try:
-			self.decrypt_users_json()
+			self._decrypt_users_json()
 			with open(USERS_DATABASE, 'r') as file:
 				return json.load(file)
 		except Exception as e:
@@ -39,27 +40,46 @@ class UserCrypto:
 	def save_users(self, users):
 		"""Save user data to the database file."""
 		os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
+
 		with open(USERS_DATABASE, 'w') as file:
 			json.dump(users, file, indent=4)
-		self.encrypt_users_json()
+		self._encrypt_users_json()
 
-	# NOT USED
-	def encrypt_users_json(self):
-		"""Cifra el archivo users.json."""
+	def generate_salt(self):
+		"""Generate a new salt."""
+		return os.urandom(16)
+
+	def generate_token(self, salt, message):
+		"""Generate a new token using the salt and message."""
+		message_bytes = message.encode()
+		kdf = PBKDF2HMAC(
+			algorithm=hashes.SHA256(),
+			length=32,
+			salt=salt,
+			iterations=480000,
+		)
+		key = base64.urlsafe_b64encode(kdf.derive(message_bytes))
+		return key
+
+	def _encrypt_users_json(self):
+		"""Encrypt the users.json file."""
 		if os.path.exists(USERS_DATABASE):
 			with open(USERS_DATABASE, 'rb') as file:
 				decrypted_data = file.read()
+
 			key = self.get_server_key()
 			fernet = Fernet(key)
+
 			encrypted_data = fernet.encrypt(decrypted_data)
 			with open(USERS_DATABASE, 'wb') as file:
 				file.write(encrypted_data)
 
-	# NOT USED
-	def decrypt_users_json(self):
-		"""Descifra el archivo users.json."""
+	def _decrypt_users_json(self):
+		"""Decrypt the users.json file."""
+
 		key = self.get_server_key()
 		fernet = Fernet(key)
+
 		try:
 			with open(USERS_DATABASE, 'rb') as file:
 				encrypted_data = file.read()
@@ -78,29 +98,13 @@ class UserCrypto:
 		except Exception as e:
 			self.printer.print_error(f"Failed to decrypt users: {e}")
 
-	# NOT USED
-	def generate_salt(self):
-		return os.urandom(16)
-
-	# NOT USED
-	def generate_token(self, salt, message):
-		message_bytes = message.encode()
-		kdf = PBKDF2HMAC(
-			algorithm=hashes.SHA256(),
-			length=32,
-			salt=salt,
-			iterations=480000,
-		)
-		key = base64.urlsafe_b64encode(kdf.derive(message_bytes))
-		return key
-
-#######################################3
-
-	# NOT USED
 	def get_server_key(self):
+		"""Get the server's Fernet key."""
+
 		if os.path.exists(SERVER_KEY_PATH):
 			with open(SERVER_KEY_PATH, 'rb') as file:
 				return file.read()
+
 		else:
 			os.makedirs("data", exist_ok=True)
 			key = self._generate_fernet_key()
@@ -108,7 +112,6 @@ class UserCrypto:
 				file.write(key)
 			return key
 
-	# NOT USED
 	def _generate_fernet_key(self):
-		"""Genera una nueva clave Fernet."""
+		"""Generate a new Fernet key."""
 		return Fernet.generate_key()
