@@ -25,14 +25,13 @@ class UserCrypto:
 		os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
 
 		if not os.path.exists(USERS_DATABASE):
-			with open(USERS_DATABASE, 'w') as file:
-				file.write("{}")
+			self.save_users({})
 			return {}
 
 		try:
-			self._decrypt_users_json()
-			with open(USERS_DATABASE, 'r') as file:
-				return json.load(file)
+			encrypted_data = self._read_encrypted_file(USERS_DATABASE)
+			decrypted_data = self._decrypt_data(encrypted_data)
+			return json.loads(decrypted_data.decode('utf-8'))
 		except Exception as e:
 			self.printer.print_error(f"Failed to load users: {e}")
 			return {}
@@ -41,9 +40,48 @@ class UserCrypto:
 		"""Save user data to the database file."""
 		os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
 
-		with open(USERS_DATABASE, 'w') as file:
-			json.dump(users, file, indent=4)
-		self._encrypt_users_json()
+		try:
+			json_data = json.dumps(users).encode('utf-8')
+			encrypted_data = self._encrypt_data(json_data)
+			self._write_encrypted_file(USERS_DATABASE, encrypted_data)
+		except Exception as e:
+			self.printer.print_error(f"Failed to save users: {e}")
+
+	def _encrypt_data(self, data):
+		"""Encrypt the given data."""
+		key = self.get_server_key()
+		fernet = Fernet(key)
+		return fernet.encrypt(data)
+
+	def _decrypt_data(self, data):
+		"""Decrypt the given data."""
+		key = self.get_server_key()
+		fernet = Fernet(key)
+		return fernet.decrypt(data)
+
+	def _read_encrypted_file(self, filepath):
+		"""Read and return the encrypted data from the file."""
+		with open(filepath, 'rb') as file:
+			return file.read()
+
+	def _write_encrypted_file(self, filepath, data):
+		"""Write the encrypted data to the file."""
+		with open(filepath, 'wb') as file:
+			file.write(data)
+
+	def get_server_key(self):
+		"""Get the server's Fernet key."""
+		if os.path.exists(SERVER_KEY_PATH):
+			with open(SERVER_KEY_PATH, 'rb') as file:
+				return file.read()
+		else:
+			os.makedirs("data", exist_ok=True)
+			key = self._generate_fernet_key()
+			with open(SERVER_KEY_PATH, 'wb') as file:
+				file.write(key)
+			return key
+
+	#############
 
 	def generate_salt(self):
 		"""Generate a new salt."""
@@ -97,20 +135,6 @@ class UserCrypto:
 					file.write(decrypted_data)
 		except Exception as e:
 			self.printer.print_error(f"Failed to decrypt users: {e}")
-
-	def get_server_key(self):
-		"""Get the server's Fernet key."""
-
-		if os.path.exists(SERVER_KEY_PATH):
-			with open(SERVER_KEY_PATH, 'rb') as file:
-				return file.read()
-
-		else:
-			os.makedirs("data", exist_ok=True)
-			key = self._generate_fernet_key()
-			with open(SERVER_KEY_PATH, 'wb') as file:
-				file.write(key)
-			return key
 
 	def _generate_fernet_key(self):
 		"""Generate a new Fernet key."""
