@@ -10,6 +10,7 @@ import json
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
+from print_manager import PrintManager
 
 def generate_session_key():
 	"""Generates a session key for encryption and decryption."""
@@ -21,12 +22,16 @@ def encrypt_notes_data(notes_data, session_key):
 	nonce = os.urandom(12)
 	aad = b"authenticated data for integrity"
 	ciphertext = chacha.encrypt(nonce, json.dumps(notes_data).encode('utf-8'), aad)
+	print_manager = PrintManager()
+	print_manager.print_debug("[CRYPTO LOG] Notes data encrypted using ChaCha20Poly1305, key length: 256 bits.")
 	return nonce, ciphertext, aad
 
 def decrypt_notes_data(nonce, session_key, aad, ciphertext):
 	"""Decrypts notes data using the provided session key."""
 	chacha = ChaCha20Poly1305(session_key)
 	plaintext = chacha.decrypt(nonce, ciphertext, aad)
+	print_manager = PrintManager()
+	print_manager.print_debug("[CRYPTO LOG] Notes data decrypted using ChaCha20Poly1305, key length: 256 bits.")
 	return json.loads(plaintext.decode('utf-8'))
 
 def encrypt_session_key(public_key, session_key):

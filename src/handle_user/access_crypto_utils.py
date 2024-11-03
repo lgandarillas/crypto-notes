@@ -48,16 +48,20 @@ class UserCrypto:
 			self.printer.print_error(f"Failed to save users: {e}")
 
 	def _encrypt_data(self, data):
-		"""Encrypt the given data."""
+		"""Encrypts the provided data using the server's Fernet key."""
 		key = self.get_server_key()
 		fernet = Fernet(key)
-		return fernet.encrypt(data)
+		encrypted_data = fernet.encrypt(data)
+		self.printer.print_debug("[CRYPTO LOG] Data encrypted with Fernet, key length: 256 bits.")
+		return encrypted_data
 
 	def _decrypt_data(self, data):
-		"""Decrypt the given data."""
+		"""Decrypts the provided data using the server's Fernet key."""
 		key = self.get_server_key()
 		fernet = Fernet(key)
-		return fernet.decrypt(data)
+		decrypted_data = fernet.decrypt(data)
+		self.printer.print_debug("[CRYPTO LOG] Data decrypted with Fernet, key length: 256 bits.")
+		return decrypted_data
 
 	def _read_encrypted_file(self, filepath):
 		"""Read and return the encrypted data from the file."""

@@ -97,16 +97,20 @@ class RegisterHandler:
 		return [msg for regex, msg in requirements.items() if not re.search(regex, password)]
 
 	def _generate_and_save_rsa_keys(self, username, password):
+		"""Generates and saves RSA private and public keys for the user."""
 		rsa_private_key, rsa_public_key = generate_rsa_keys(self.printer, password)
 		save_rsa_keys(self.printer, rsa_private_key, rsa_public_key, username)
+		self.printer.print_debug("[CRYPTO LOG] RSA keys generated and saved; RSA, 2048 bits.")
 
 	def _setup_two_factor_auth(self, username):
+		"""Sets up two-factor authentication for the user by generating a QR code."""
 		secret = self.users[username]['2fa_secret']
 		qr_code_image = self._get_qr_code(username, secret)
 		qr_image_file = f"{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
 		self._open_qr_image(qr_image_file)
+		self.printer.print_debug("[CRYPTO LOG] 2FA setup completed with TOTP.")
 
 	def _generate_2fa_secret(self):
 		"""Generate a new TOTP secret for 2FA."""

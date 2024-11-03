@@ -30,7 +30,7 @@ def generate_rsa_keys(printer, password):
 		encoding=serialization.Encoding.PEM,
 		format=serialization.PublicFormat.SubjectPublicKeyInfo
 	)
-	printer.print_debug("[CRYPTO LOG] RSA keys generated; RSA, 2048 bits")
+	printer.print_debug("[CRYPTO LOG] RSA keys generated; RSA, 2048 bits.")
 	return pem_private, pem_public
 
 def save_rsa_keys(printer, private_key, public_key, username):

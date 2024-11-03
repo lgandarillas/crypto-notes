@@ -127,8 +127,7 @@ class NoteHandler:
 
 			with open(self.notes_file, 'w') as file:
 				json.dump(encrypted_data, file, indent=4)
-
-			self.printer.print_debug(f"[DEBUG] Notas guardadas: {notes}")
+			self.printer.print_debug("[CRYPTO LOG] Notes saved and encrypted with ChaCha20Poly1305, key length: 256 bits.")
 		else:
 			if os.path.exists(self.notes_file):
 				os.remove(self.notes_file)
