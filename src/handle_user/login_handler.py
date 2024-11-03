@@ -12,11 +12,13 @@ from print_manager import PrintManager
 from handle_notes.note_handler import NoteHandler
 from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
 from cryptography.hazmat.primitives import serialization
+from handle_user.access_crypto_utils import UserCrypto
 
 class LoginHandler:
 	def __init__(self, users):
 		self.users = users
 		self.printer = PrintManager()
+		self.user_crypto = UserCrypto()
 
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
@@ -61,24 +63,20 @@ class LoginHandler:
 	def _get_password(self, username):
 		"""Prompt for and validate the user's password with an option to cancel."""
 		while True:
-			try:
-				password = pwinput.pwinput("Enter your password: ", mask='*').strip()
-				if password == "":
-					cancel = input("Do you want to cancel login? (y/n): ").strip().lower()
-					if cancel == 'y':
-						self.printer.print_error("Login cancelled.")
-						return None
-				if password == self.users.get(username, {}).get('password'):
-					return password
-				else:
-					self.printer.print_error("Incorrect password.")
-					retry = input("Do you want to try again? (y/n): ").strip().lower()
-					if retry == 'n':
-						self.printer.print_error("Login cancelled.")
-						return None
-			except KeyboardInterrupt:
-				self.printer.print_error("\nLogin cancelled.")
-				return None
+			password = pwinput.pwinput("Enter your password: ", mask='*').strip()
+			salt = bytes.fromhex(self.users[username]['salt'])
+			expected_token = self.users[username]['token']
+
+			token = self.user_crypto.generate_token(salt, password).decode()
+
+			if token == expected_token:
+				return password
+			else:
+				self.printer.print_error("Incorrect password.")
+				retry = input("Do you want to try again? (y/n): ").strip().lower()
+				if retry == 'n':
+					self.printer.print_error("Login cancelled.")
+					return None
 
 	def _validate_2fa(self, username):
 		"""Validate the user's 2FA code with retry/cancel option only."""

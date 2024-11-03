@@ -36,14 +36,20 @@ class RegisterHandler:
 		password = self._get_password()
 		if password is None:
 			return False
+
+		salt = self.user_crypto.generate_salt()
+		token = self.user_crypto.generate_token(salt, password)
 		self.users[username] = {
-			'password': password,
+			'salt': salt.hex(),
+			'token': token.decode(),
 			'2fa_secret': self._generate_2fa_secret()
 		}
+
 		self._generate_and_save_rsa_keys(username, password)
 		self.user_crypto.save_users(self.users)
 		self._setup_two_factor_auth(username)
 		self.printer.print_success(f"User {username} registered successfully!")
+
 		return True
 
 	def _get_username(self):

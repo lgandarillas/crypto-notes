@@ -22,7 +22,6 @@ class UserCrypto:
 
 	def load_users(self):
 		"""Load user data from the encrypted database file."""
-
 		os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
 
 		if not os.path.exists(USERS_DATABASE):
@@ -30,6 +29,7 @@ class UserCrypto:
 				file.write("{}")
 			return {}
 		try:
+			self.decrypt_users_json()
 			with open(USERS_DATABASE, 'r') as file:
 				return json.load(file)
 		except Exception as e:
@@ -38,28 +38,10 @@ class UserCrypto:
 
 	def save_users(self, users):
 		"""Save user data to the database file."""
-
 		os.makedirs(os.path.dirname(USERS_DATABASE), exist_ok=True)
-
 		with open(USERS_DATABASE, 'w') as file:
 			json.dump(users, file, indent=4)
-
-	# NOT USED
-	def get_server_key(self):
-		if os.path.exists(SERVER_KEY_PATH):
-			with open(SERVER_KEY_PATH, 'rb') as file:
-				return file.read()
-		else:
-			os.makedirs("data", exist_ok=True)
-			key = self._generate_fernet_key()
-			with open(SERVER_KEY_PATH, 'wb') as file:
-				file.write(key)
-			return key
-
-	# NOT USED
-	def _generate_fernet_key(self):
-		"""Genera una nueva clave Fernet."""
-		return Fernet.generate_key()
+		self.encrypt_users_json()
 
 	# NOT USED
 	def encrypt_users_json(self):
@@ -81,9 +63,18 @@ class UserCrypto:
 		try:
 			with open(USERS_DATABASE, 'rb') as file:
 				encrypted_data = file.read()
-			decrypted_data = fernet.decrypt(encrypted_data)
-			with open(USERS_DATABASE, 'wb') as file:
-				file.write(decrypted_data)
+
+			if not encrypted_data:
+				self.printer.print_debug("users.json is empty.")
+				return
+
+			try:
+				json.loads(encrypted_data.decode())
+				return
+			except (json.JSONDecodeError, UnicodeDecodeError):
+				decrypted_data = fernet.decrypt(encrypted_data)
+				with open(USERS_DATABASE, 'wb') as file:
+					file.write(decrypted_data)
 		except Exception as e:
 			self.printer.print_error(f"Failed to decrypt users: {e}")
 
@@ -102,3 +93,22 @@ class UserCrypto:
 		)
 		key = base64.urlsafe_b64encode(kdf.derive(message_bytes))
 		return key
+
+#######################################3
+
+	# NOT USED
+	def get_server_key(self):
+		if os.path.exists(SERVER_KEY_PATH):
+			with open(SERVER_KEY_PATH, 'rb') as file:
+				return file.read()
+		else:
+			os.makedirs("data", exist_ok=True)
+			key = self._generate_fernet_key()
+			with open(SERVER_KEY_PATH, 'wb') as file:
+				file.write(key)
+			return key
+
+	# NOT USED
+	def _generate_fernet_key(self):
+		"""Genera una nueva clave Fernet."""
+		return Fernet.generate_key()
