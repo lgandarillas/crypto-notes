@@ -107,7 +107,7 @@ class LoginHandler:
 					password=password.encode()
 				)
 
-			with open(f"data/keys/public/{username}_public_key.pem", 'rb') as pub_file:
+			with open(f"data/keys/{username}/{username}_public_key.pem", 'rb') as pub_file:
 				public_key = serialization.load_pem_public_key(
 					pub_file.read()
 				)
