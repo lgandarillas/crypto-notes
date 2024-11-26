@@ -12,6 +12,7 @@ import pyotp
 import qrcode
 import base64
 import pwinput
+import pycountry
 import subprocess
 from print_manager import PrintManager
 from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
@@ -37,12 +38,17 @@ class RegisterHandler:
 		if password is None:
 			return False
 
+		country = self._get_country()
+		if country is None:
+			return False
+
 		salt = self.user_crypto.generate_salt()
 		token = self.user_crypto.generate_token(salt, password)
 		self.users[username] = {
 			'salt': salt.hex(),
 			'token': token.decode(),
-			'2fa_secret': self._generate_2fa_secret()
+			'2fa_secret': self._generate_2fa_secret(),
+			'country': country
 		}
 
 		self._generate_and_save_rsa_keys(username, password)
@@ -51,6 +57,28 @@ class RegisterHandler:
 		self.printer.print_success(f"User {username} registered successfully!")
 
 		return True
+
+	def _get_country(self):
+		"""Prompt the user to select their country of origin."""
+		while True:
+			try:
+				country_name = input("Enter your country of origin: ").strip()
+				country = self._validate_country(country_name)
+				if country:
+					return country
+				else:
+					self.printer.print_error(f"Invalid country: '{country_name}'. Please try again.")
+			except KeyboardInterrupt:
+				self.printer.print_error("\nRegistration cancelled.")
+				return None
+
+	def _validate_country(self, country_name):
+		"""Validate if the provided country name is valid."""
+		try:
+			country = pycountry.countries.lookup(country_name)
+			return country.name
+		except LookupError:
+			return None
 
 	def _get_username(self):
 		try:
