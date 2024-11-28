@@ -84,7 +84,6 @@ class NoteHandler:
 		note_actions.create(note_name, note_content)
 		self._save_notes(notes)
 
-	# Modified function
 	def _load_notes(self):
 		"""Loads notes from a file associated with the user."""
 		if not os.path.exists(self.notes_dir):
@@ -105,11 +104,8 @@ class NoteHandler:
 			session_key = decrypt_session_key(self.rsa_private_key, encrypted_session_key)
 			notes_data_str = decrypt_notes_data(nonce, session_key, aad, ciphertext, self.rsa_public_key)
 
-			notes = json.loads(notes_data_str)
-			if not isinstance(notes, list):
-				raise ValueError("Decrypted notes are not in the expected format.")
-
-			return notes
+			self.printer.print_debug("[CRYPTO LOG] Notes successfully decrypted and loaded.")
+			return json.loads(notes_data_str)
 
 		except ValueError as e:
 			self.printer.print_error(f"[SECURITY ALERT] {e}")
@@ -118,13 +114,11 @@ class NoteHandler:
 			self.printer.print_error(f"[SECURITY ALERT] Failed to load notes: {e}")
 			exit(1)
 
-	# Modified function
 	def _save_notes(self, notes):
 		"""Saves the current list of notes to the user's file."""
 		if notes:
 			session_key = generate_session_key()
 
-			# Convert notes to JSON string
 			notes_data = json.dumps(notes)
 
 			nonce, ciphertext, aad = encrypt_notes_data(notes_data, session_key, self.rsa_private_key)

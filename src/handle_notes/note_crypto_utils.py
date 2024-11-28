@@ -12,13 +12,15 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from print_manager import PrintManager
 
-# New
-
 def	generate_hash(data):
 	"""Generates a SHA-256 hash for the given data."""
 	digest = hashes.Hash(hashes.SHA256())
 	digest.update(data.encode('utf-8'))
-	return digest.finalize()
+	hash_result = digest.finalize()
+
+	PrintManager().print_debug("[CRYPTO LOG] Hash generated using SHA-256.")
+
+	return hash_result
 
 def sign_hash_with_private_key(private_key, data_hash):
 	signtaure = private_key.sign(
@@ -29,6 +31,7 @@ def sign_hash_with_private_key(private_key, data_hash):
 		),
 		hashes.SHA256(),
 	)
+	PrintManager().print_debug("[CRYPTO LOG] Hash signed using RSA-PSS with SHA-256.")
 	return signtaure
 
 def verify_signature_with_public_key(public_key, signtaure, data_hash):
@@ -43,11 +46,12 @@ def verify_signature_with_public_key(public_key, signtaure, data_hash):
 			),
 			hashes.SHA256(),
 		)
+		PrintManager().print_debug("[CRYPTO LOG] Signature verified using RSA-PSS with SHA-256.")
 		return True
-	except Exception as e:
-		return False
 
-# Modified
+	except Exception as e:
+		PrintManager().print_debug(f"[CRYPTO LOG] Signature verification failed: {e}")
+		return False
 
 def encrypt_notes_data(notes_data, session_key, private_key):
 	"""Encrypts notes data using the provided session key."""
@@ -55,22 +59,16 @@ def encrypt_notes_data(notes_data, session_key, private_key):
 	nonce = os.urandom(12)
 	aad = b"authenticated data for integrity"
 
-	# Convert notes to JSON string
 	try:
 		notes_data_str = json.dumps(notes_data)
 	except Exception as e:
 		raise ValueError(f"Failed to serialize notes data: {e}")
 
-	# Generate hash and signature
 	notes_hash = generate_hash(notes_data_str)
-	print(f"[DEBUG] Hash for signing: {notes_hash.hex()}")
-
 	signature = sign_hash_with_private_key(private_key, notes_hash)
-	print(f"[DEBUG] Signature: {signature.hex()}")
 
-	# Combine all components into one payload
 	payload = {
-		"notes": notes_data_str,	# JSON string of the notes
+		"notes": notes_data_str,
 		"hash": notes_hash.hex(),
 		"signature": signature.hex(),
 	}
@@ -80,12 +78,12 @@ def encrypt_notes_data(notes_data, session_key, private_key):
 	except Exception as e:
 		raise ValueError(f"Payload serialization failed: {e}")
 
-	# Encrypt combined payload
 	try:
 		ciphertext = chacha.encrypt(nonce, payload_json.encode('utf-8'), aad)
 	except Exception as e:
 		raise ValueError(f"Encryption failed: {e}")
 
+	PrintManager().print_debug("[CRYPTO LOG] Notes encrypted using ChaCha20Poly1305.")
 	return nonce, ciphertext, aad
 
 def decrypt_notes_data(nonce, session_key, aad, ciphertext, public_key):
@@ -101,33 +99,22 @@ def decrypt_notes_data(nonce, session_key, aad, ciphertext, public_key):
 	except Exception as e:
 		raise ValueError(f"Failed to deserialize payload: {e}")
 
-	# Extract components
 	try:
 		notes_data_str = payload["notes"]
 		notes_hash = bytes.fromhex(payload["hash"])
 		signature = bytes.fromhex(payload["signature"])
-		print(f"[DEBUG] Payload notes hash: {notes_hash.hex()}")
-		print(f"[DEBUG] Payload signature: {signature.hex()}")
 	except KeyError as e:
 		raise ValueError(f"Missing excepted key in payload: {e}")
 
-	# Verify signature
 	if not verify_signature_with_public_key(public_key, signature, notes_hash):
 		raise ValueError("Signature validation failed.")
 
-	# Recalculate hash to validate integrity
 	recalculated_hash = generate_hash(notes_data_str)
-	print(f"[DEBUG] Recalculated hash: {recalculated_hash.hex()}")
 	if recalculated_hash != notes_hash:
 		raise ValueError("Hash mismatch. Possible data tampering.")
 
-	# Convert JSON string back to original data structure
-	try:
-		return json.loads(notes_data_str)
-	except Exception as e:
-		raise ValueError(f"Failed to deserialize notes data: {e}")
-
-# Old
+	PrintManager().print_debug("[CRYPTO LOG] Notes decrypted and signature verified successfully.")
+	return json.loads(notes_data_str)
 
 def generate_session_key():
 	"""Generates a session key for encryption and decryption."""
@@ -143,6 +130,7 @@ def encrypt_session_key(public_key, session_key):
 			label=None
 		)
 	)
+	PrintManager().print_debug("[CRYPTO LOG] Session key encrypted using RSA-OAEP with SHA-256.")
 	return encrypted_session_key
 
 def decrypt_session_key(private_key, encrypted_session_key):
@@ -155,4 +143,5 @@ def decrypt_session_key(private_key, encrypted_session_key):
 			label=None
 		)
 	)
+	PrintManager().print_debug("[CRYPTO LOG] Session key decrypted using RSA-OAEP with SHA-256.")
 	return session_key
