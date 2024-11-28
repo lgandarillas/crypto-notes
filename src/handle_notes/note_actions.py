@@ -20,7 +20,7 @@ class NoteActions:
 
 		found_note = None
 		for note in self.notes:
-			if note['name'] == note_name:
+			if isinstance(note, dict) and note.get('name') == note_name:
 				found_note = note
 				break
 		if found_note:
@@ -41,6 +41,10 @@ class NoteActions:
 	def list(self):
 		"""Lists all notes currently stored for the user."""
 		self.printer.print_action("Your notes available are:")
+
+		if not isinstance(self.notes, list):
+			self.printer.print_error("Notes data is not a valid list.")
+			return
 
 		if self.notes:
 			for note in self.notes:
