@@ -12,6 +12,43 @@ from cryptography.hazmat.primitives.asymmetric import padding
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from print_manager import PrintManager
 
+# New
+
+def	generate_hash(data):
+	"""Generates a SHA-256 hash for the given data."""
+	digest = hashes.Hash(hashes.SHA256())
+	digest.update(data.encode('utf-8'))
+	return digest.finalize()
+
+def sign_hash_with_private_key(private_key, data_hash):
+	signtaure = private_key.sign(
+		data_hash,
+		padding.PSS(
+			mgf=padding.MGF1(hashes.SHA256()),
+			salt_length=padding.PSS.MAX_LENGTH,
+		),
+		hashes.SHA256,
+	)
+	return signtaure
+
+def verify_signature_with_public_key(public_key, signtaure, data_hash):
+	"""Verifies the signature of the hash using the public RSA key."""
+	try:
+		public_key.verify(
+			signtaure,
+			data_hash,
+			padding.PSS(
+				mgf=padding.MGF1(hashes.SHA256()),
+				salt_length=padding.PSS.MAX_LENGTH,
+			),
+			hashes.SHA256,
+		)
+		return True
+	except Exception as e:
+		return False
+
+# Old
+
 def generate_session_key():
 	"""Generates a session key for encryption and decryption."""
 	return ChaCha20Poly1305.generate_key()
