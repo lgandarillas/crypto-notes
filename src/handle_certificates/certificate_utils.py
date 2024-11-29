@@ -64,3 +64,24 @@ def build_certificate(subject, issuer, public_key, private_key, is_root=False):
 			x509.BasicConstraints(ca=True, path_length=0), critical=True
 		)
 	return builder.sign(private_key, hashes.SHA256())
+
+def verify_certificate(child_cert_path, parent_cert_path):
+	"""Verifies that a child certificate was signed by the parent certificate."""
+	with open(child_cert_path, "rb") as child_file:
+		child_certificate = x509.load_pem_x509_certificate(child_file.read())
+
+	with open(parent_cert_path, "rb") as parent_file:
+		parent_certificate = x509.load_pem_x509_certificate(parent_file.read())
+
+	parent_public_key = parent_certificate.public_key()
+
+	try:
+		parent_public_key.verify(
+			child_certificate.signature,
+			child_certificate.tbs_certificate_bytes,
+			child_certificate.signature_hash_algorithm,
+		)
+		return True
+	except Exception as e:
+		print(f"Verification failed: {e}")
+		return False
