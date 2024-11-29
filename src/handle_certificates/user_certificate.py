@@ -7,7 +7,7 @@ from cryptography import x509
 from cryptography.x509 import NameOID
 from print_manager import PrintManager
 from cryptography.hazmat.primitives import serialization
-from certificate_utils import generate_key_pair, save_key, save_certificate, build_certificate
+from certificate_utils import save_certificate, build_certificate
 
 print_manager = PrintManager()
 
@@ -32,8 +32,12 @@ def create_user_certificate(username, country_code, country_name):
 	with open(intermediate_private_key_path, "rb") as key_file:
 		intermediate_private_key = serialization.load_pem_private_key(key_file.read(), password=None)
 
-	# Generate key pair for the user
-	user_private_key, user_public_key = generate_key_pair()
+	# Load user's existing private and public keys
+	with open(user_private_key_path, "rb") as priv_file:
+		user_private_key = serialization.load_pem_private_key(priv_file.read(), password=None)
+
+	with open(user_public_key_path, "rb") as pub_file:
+		user_public_key = serialization.load_pem_public_key(pub_file.read())
 
 	# Define the subject for the user's certificate
 	subject = x509.Name([
@@ -51,9 +55,7 @@ def create_user_certificate(username, country_code, country_name):
 		is_root=False,
 	)
 
-	# Save the user's certificate and keys
-	save_key(user_private_key_path, user_private_key, is_private=True)
-	save_key(user_public_key_path, user_public_key, is_private=False)
+	# Save the user's certificate
 	save_certificate(user_cert_path, user_certificate)
 
 	print_manager.print_success(f"[CERTIFICATE LOG] User certificate for {username} created successfully.")
