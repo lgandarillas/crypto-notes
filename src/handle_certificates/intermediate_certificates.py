@@ -1,5 +1,5 @@
 """
-src/handle_certificates/intermediate_certificates.py
+src/handle_certificates/intermediate_certificate.py
 """
 
 import os
