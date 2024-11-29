@@ -132,9 +132,13 @@ class RegisterHandler:
 
 	def _setup_two_factor_auth(self, username):
 		"""Sets up two-factor authentication for the user by generating a QR code."""
+		data_dir = "data/"
+		if not os.path.exists(data_dir):
+			os.makedirs(data_dir)
+
 		secret = self.users[username]['2fa_secret']
 		qr_code_image = self._get_qr_code(username, secret)
-		qr_image_file = f"{username}_qrcode.png"
+		qr_image_file = f"data/{username}_qrcode.png"
 		with open(qr_image_file, 'wb') as qr_file:
 			qr_file.write(qr_code_image)
 		self._open_qr_image(qr_image_file)

@@ -51,7 +51,7 @@ class AccessHandler:
 	def _handle_exit(self):
 		"""Handle the exit mode, printing the exit message."""
 		for user in self.users:
-			qr_image_file = f"{user}_qrcode.png"
+			qr_image_file = f"data/{user}_qrcode.png"
 			if os.path.exists(qr_image_file):
 				os.remove(qr_image_file)
 		self.printer.print_exit_msg()
