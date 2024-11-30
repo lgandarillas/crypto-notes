@@ -19,6 +19,15 @@ class LoginHandler:
 		self.users = users
 		self.printer = PrintManager()
 		self.user_crypto = UserCrypto()
+		self.current_user = None
+
+	def get_user_country(self):
+		"""Get the country code of the currently logged-in user."""
+		if self.current_user:
+			return self.users[self.current_user]['country']
+		else:
+			self.printer.print_error("No user is currently logged in.")
+			return None
 
 	def handle_login(self):
 		"""Handle the login process for an existing user."""
@@ -38,6 +47,8 @@ class LoginHandler:
 		if private_key is None or public_key is None:
 			self.printer.print_error("Failed to retrieve RSA keys.")
 			return False
+
+		self.current_user = username
 
 		NoteHandler(username, private_key, public_key).run_notes_app()
 

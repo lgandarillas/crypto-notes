@@ -17,6 +17,7 @@ import subprocess
 from print_manager import PrintManager
 from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
 from handle_user.access_crypto_utils import UserCrypto
+from handle_certificates.intermediate_certificates import ensure_intermediate_certificate
 
 class RegisterHandler:
 	def __init__(self):
@@ -41,6 +42,10 @@ class RegisterHandler:
 		country = self._get_country()
 		if country is None:
 			return False
+
+		root_cert_path = "data/certificates/world/world_headquarters_certificate.pem"
+		root_private_key_path = "data/certificates/world/world_headquarters_private.pem"
+		ensure_intermediate_certificate(country, root_cert_path, root_private_key_path)
 
 		salt = self.user_crypto.generate_salt()
 		token = self.user_crypto.generate_token(salt, password)
@@ -76,7 +81,7 @@ class RegisterHandler:
 		"""Validate if the provided country name is valid."""
 		try:
 			country = pycountry.countries.lookup(country_name)
-			return country.name
+			return country.alpha_2
 		except LookupError:
 			return None
 

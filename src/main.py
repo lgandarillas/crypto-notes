@@ -8,10 +8,14 @@ By: Luis Gandarillas && Carlos Bravo
 import pwinput
 from handle_user.access_handler import AccessHandler
 from handle_certificates.root_certificate import ensure_root_certificate
+from handle_certificates.intermediate_certificates import ensure_intermediate_certificate
 
 def main():
 	access_handler = AccessHandler()
 	ensure_root_certificate()
+
+	root_cert_path = "data/certificates/world/world_headquarters_certificate.pem"
+	root_private_key_path = "data/certificates/world/world_headquarters_private.pem"
 
 	while True:
 		try:
