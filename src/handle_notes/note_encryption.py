@@ -10,9 +10,9 @@ from print_manager import PrintManager
 from cryptography.hazmat.primitives.ciphers.aead import ChaCha20Poly1305
 from .crypto_hash_utils import generate_hash, sign_hash_with_private_key, verify_signature_with_public_key
 
-def encrypt_notes_data(notes_data, session_key, private_key):
-	"""Encrypts notes data using the provided session key."""
-	chacha = ChaCha20Poly1305(session_key)
+def encrypt_notes_data(notes_data, encryption_key, private_key):
+	"""Encrypts notes data using the provided encryption key."""
+	chacha = ChaCha20Poly1305(encryption_key)
 	nonce = os.urandom(12)
 	aad = b"authenticated data for integrity"
 
@@ -43,9 +43,9 @@ def encrypt_notes_data(notes_data, session_key, private_key):
 	PrintManager().print_debug("[CRYPTO LOG] Notes encrypted using ChaCha20Poly1305.")
 	return nonce, ciphertext, aad
 
-def decrypt_notes_data(nonce, session_key, aad, ciphertext, public_key):
-	"""Decrypts notes data using the provided session key."""
-	chacha = ChaCha20Poly1305(session_key)
+def decrypt_notes_data(nonce, encryption_key, aad, ciphertext, public_key):
+	"""Decrypts notes data using the provided encryption key."""
+	chacha = ChaCha20Poly1305(encryption_key)
 	try:
 		plaintext = chacha.decrypt(nonce, ciphertext, aad)
 	except Exception as e:

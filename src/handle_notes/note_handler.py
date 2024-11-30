@@ -20,7 +20,7 @@ class NoteHandler:
 		self.file_manager = NoteFileManager(username, rsa_private_key, rsa_public_key)
 
 	def run_notes_app(self, is_first_time_login=False):
-		"""Runs the note management session, allowing the user to choose different note operations."""
+		"""Runs the note management encryption, allowing the user to choose different note operations."""
 		if is_first_time_login:
 			self._new_note()
 			return

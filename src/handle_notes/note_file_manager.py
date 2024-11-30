@@ -6,7 +6,7 @@ Handles loading, saving, encrypting, and decrypting notes.
 
 import os
 import json
-from handle_notes.crypto_key_utils import generate_session_key, encrypt_session_key, decrypt_session_key
+from handle_notes.crypto_key_utils import generate_encryption_key, encrypt_encryption_key, decrypt_encryption_key
 from handle_notes.note_encryption import encrypt_notes_data, decrypt_notes_data
 from handle_notes.note_utils import ensure_directory_exists
 
@@ -46,25 +46,25 @@ class NoteFileManager:
 		with open(self.notes_file, 'rb') as file:
 			encrypted_data = json.load(file)
 
-		encrypted_session_key = bytes.fromhex(encrypted_data["encrypted_session_key"])
+		encrypted_encryption_key = bytes.fromhex(encrypted_data["encrypted_encryption_key"])
 		nonce = bytes.fromhex(encrypted_data["nonce"])
 		ciphertext = bytes.fromhex(encrypted_data["ciphertext"])
 		aad = bytes.fromhex(encrypted_data["aad"])
 
-		session_key = decrypt_session_key(self.rsa_private_key, encrypted_session_key)
-		return decrypt_notes_data(nonce, session_key, aad, ciphertext, self.rsa_public_key)
+		encryption_key = decrypt_encryption_key(self.rsa_private_key, encrypted_encryption_key)
+		return decrypt_notes_data(nonce, encryption_key, aad, ciphertext, self.rsa_public_key)
 
 	def _encrypt_notes_file(self, notes):
 		"""Encrypts and prepares notes data for saving."""
-		session_key = generate_session_key()
+		encryption_key = generate_encryption_key()
 		notes_data = json.dumps(notes)
 
-		nonce, ciphertext, aad = encrypt_notes_data(notes_data, session_key, self.rsa_private_key)
-		encrypted_session_key = encrypt_session_key(self.rsa_public_key, session_key)
+		nonce, ciphertext, aad = encrypt_notes_data(notes_data, encryption_key, self.rsa_private_key)
+		encrypted_encryption_key = encrypt_encryption_key(self.rsa_public_key, encryption_key)
 
 		return {
 			"nonce": nonce.hex(),
-			"encrypted_session_key": encrypted_session_key.hex(),
+			"encrypted_encryption_key": encrypted_encryption_key.hex(),
 			"aad": aad.hex(),
 			"ciphertext": ciphertext.hex()
 		}
