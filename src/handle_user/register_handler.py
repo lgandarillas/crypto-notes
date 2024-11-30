@@ -17,6 +17,7 @@ import subprocess
 from print_manager import PrintManager
 from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
 from handle_user.access_crypto_utils import UserCrypto
+from handle_certificates.user_certificate import create_user_certificate
 from handle_certificates.intermediate_certificates import ensure_intermediate_certificate
 
 class RegisterHandler:
@@ -59,8 +60,10 @@ class RegisterHandler:
 		self._generate_and_save_rsa_keys(username, password)
 		self.user_crypto.save_users(self.users)
 		self._setup_two_factor_auth(username)
-		self.printer.print_success(f"User {username} registered successfully!")
 
+		create_user_certificate(username, country)
+
+		self.printer.print_success(f"User {username} registered successfully!")
 		return True
 
 	def _get_country(self):
