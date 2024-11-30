@@ -10,15 +10,17 @@ import base64
 import pwinput
 from print_manager import PrintManager
 from handle_notes.note_handler import NoteHandler
-from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
-from cryptography.hazmat.primitives import serialization
 from handle_user.access_crypto_utils import UserCrypto
+from cryptography.hazmat.primitives import serialization
+from handle_user.rsa_utils import generate_rsa_keys, save_rsa_keys
+from handle_certificates.certificate_guardian import CertificateGuardian
 
 class LoginHandler:
 	def __init__(self, users):
 		self.users = users
 		self.printer = PrintManager()
 		self.user_crypto = UserCrypto()
+		self.guardian = CertificateGuardian()
 		self.current_user = None
 
 	def get_user_country(self):
@@ -41,6 +43,22 @@ class LoginHandler:
 			return False
 
 		if not self._validate_2fa(username):
+			return False
+
+		user_cert_path = f"data/keys/{username}/{username}_certificate.pem"
+		intermediate_cert_path = f"data/certificates/{self.users[username]['country']}/{self.users[username]['country']}_HQ_certificate.pem"
+		root_cert_path = "data/certificates/world/world_headquarters_certificate.pem"
+
+		if not self.guardian.validate_root_certificate(root_cert_path):
+			self.printer.print_error("Root certificate validation failed. Login aborted.")
+			return False
+
+		if not self.guardian.validate_intermediate_certificate(intermediate_cert_path, root_cert_path):
+			self.printer.print_error("Intermediate certificate validation failed. Login aborted.")
+			return False
+
+		if not self.guardian.validate_user_certificate(user_cert_path, intermediate_cert_path):
+			self.printer.print_error("User certificate validation failed. Login aborted.")
 			return False
 
 		private_key, public_key = self._get_rsa_keys(username, password)

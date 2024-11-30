@@ -9,7 +9,7 @@ import sys
 from time import sleep
 from progress.bar import Bar
 
-ENABLE_CRYPTO_LOGS = False
+ENABLE_CRYPTO_LOGS = True
 
 class PrintManager:
 	"""Class to manage the printing of messages and progress bars."""

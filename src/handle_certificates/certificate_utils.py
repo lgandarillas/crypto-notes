@@ -8,6 +8,7 @@ from datetime import datetime, timedelta, timezone
 from cryptography.hazmat.primitives import hashes
 from cryptography.hazmat.primitives.asymmetric import rsa
 from cryptography.hazmat.primitives import serialization
+from cryptography.hazmat.primitives.asymmetric import padding
 
 def generate_key_pair():
 	"""Generates a private and public key pair."""
@@ -79,6 +80,7 @@ def verify_certificate(child_cert_path, parent_cert_path):
 		parent_public_key.verify(
 			child_certificate.signature,
 			child_certificate.tbs_certificate_bytes,
+			padding.PKCS1v15(),
 			child_certificate.signature_hash_algorithm,
 		)
 		return True
