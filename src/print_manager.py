@@ -9,6 +9,8 @@ import sys
 from time import sleep
 from progress.bar import Bar
 
+ENABLE_CRYPTO_LOGS = False
+
 class PrintManager:
 	"""Class to manage the printing of messages and progress bars."""
 
@@ -62,8 +64,9 @@ class PrintManager:
 
 	def print_debug(self, message: str):
 		"""Print debug messages in gray color."""
-		debug_msg = self.apply_color(message, self.COLOR_GRAY)
-		print(debug_msg)
+		if ENABLE_CRYPTO_LOGS == True:
+			debug_msg = self.apply_color(message, self.COLOR_GRAY)
+			print(debug_msg)
 
 	def show_progress_bar(self, task_description="Processing... ", duration=2.0):
 		"""Show a progress bar with a given task description and duration."""
