@@ -7,9 +7,11 @@ By: Luis Gandarillas && Carlos Bravo
 
 import pwinput
 from handle_user.access_handler import AccessHandler
+from handle_certificates.root_certificate import ensure_root_certificate
 
 def main():
 	access_handler = AccessHandler()
+	ensure_root_certificate()
 
 	while True:
 		try:
