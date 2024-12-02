@@ -14,9 +14,6 @@ def main():
 	access_handler = AccessHandler()
 	ensure_root_certificate()
 
-	root_cert_path = "data/certificates/world/world_headquarters_certificate.pem"
-	root_private_key_path = "data/certificates/world/world_headquarters_private.pem"
-
 	while True:
 		try:
 			access_handler.handle_access()

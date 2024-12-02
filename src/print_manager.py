@@ -67,10 +67,3 @@ class PrintManager:
 		if ENABLE_CRYPTO_LOGS == True:
 			debug_msg = self.apply_color(message, self.COLOR_GRAY)
 			print(debug_msg)
-
-	def show_progress_bar(self, task_description="Processing... ", duration=2.0):
-		"""Show a progress bar with a given task description and duration."""
-		with Bar(task_description, max=100, color='green') as bar:
-			for i in range(100):
-				sleep(duration / 100)
-				bar.next()
