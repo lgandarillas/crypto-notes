@@ -12,8 +12,8 @@ This secure notes system is a console-based application designed for users to st
 
 1. Clone or download this repository:
     ```bash
-    git clone git@github.com:lgandarillas/p1_cripto.git
-    cd p1_cripto
+    git clone https://github.com/lgandarillas/crypto-notes.git
+    cd crypto-notes
     ```
 
 2. Set up the virtual environment and install dependencies:
