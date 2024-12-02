@@ -20,7 +20,7 @@ class PrintManager:
 	COLOR_GRAY = "\033[90m"
 	COLOR_RESET = "\033[0m"
 
-	def apply_color(self, text: str, color: str) -> str:
+	def _apply_color(self, text: str, color: str) -> str:
 		"""Apply color formatting to the given text."""
 		return f"{color}{text}{self.COLOR_RESET}"
 
@@ -36,7 +36,7 @@ class PrintManager:
 | |___| | | | (__| |  | |_| | |_) | ||  __/ (_| | | |\  | (_) | ||  __/\__ \
 |_____|_| |_|\___|_|   \__, | .__/ \__\___|\__,_| |_| \_|\___/ \__\___||___/
                        |___/|_|                                             """
-		print(self.apply_color(msg, self.COLOR_BLUE))
+		print(self._apply_color(msg, self.COLOR_BLUE))
 
 	def print_exit_msg(self):
 		"""Print the exit message with red color."""
@@ -45,25 +45,25 @@ class PrintManager:
 |  `--,   .'	\  |  |   |  |
 |  `---. /  .'.  \ |  |   |  |
 `------''--'   '--'`--'   `--'"""
-		print(self.apply_color(msg, self.COLOR_RED))
+		print(self._apply_color(msg, self.COLOR_RED))
 
 	def print_error(self, message: str):
 		"""Print error messages in red color to the standard error output."""
-		error_msg = self.apply_color(message, self.COLOR_RED)
+		error_msg = self._apply_color(message, self.COLOR_RED)
 		print(error_msg, file=sys.stderr)
 
 	def print_success(self, message: str):
 		"""Print success messages in green color."""
-		success_msg = self.apply_color(message, self.COLOR_GREEN)
+		success_msg = self._apply_color(message, self.COLOR_GREEN)
 		print(success_msg)
 
 	def print_action(self, message: str):
 		"""Print action messages in blue color."""
-		action_msg = self.apply_color(message, self.COLOR_BLUE)
+		action_msg = self._apply_color(message, self.COLOR_BLUE)
 		print(action_msg)
 
 	def print_debug(self, message: str):
 		"""Print debug messages in gray color."""
 		if ENABLE_CRYPTO_LOGS == True:
-			debug_msg = self.apply_color(message, self.COLOR_GRAY)
+			debug_msg = self._apply_color(message, self.COLOR_GRAY)
 			print(debug_msg)
