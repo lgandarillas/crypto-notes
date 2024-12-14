@@ -1,4 +1,6 @@
-# Secure Notes Application
+# [crypto-notes | UC3M - Cryptography and computer security]
+
+## Secure Notes Application
 
 ![Home](assets/home.png)
 
